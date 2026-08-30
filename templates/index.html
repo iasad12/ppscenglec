@@ -1,0 +1,1807 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PPSC / FPSC English Lecturer & Subject Specialist Exam Prep Portal</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #7c3aed;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #06b6d4;
+            --bg-light: #f8fafc;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        [data-bs-theme="dark"] {
+            --bg-light: #0f172a;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 8px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        }
+
+        .nav-link {
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            border-radius: 8px;
+            padding: 6px 11px !important;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+            background-color: rgba(79, 70, 229, 0.05);
+        }
+
+        .nav-link.active {
+            color: var(--primary) !important;
+            background-color: rgba(79, 70, 229, 0.1);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+
+        .hero-banner {
+            background: linear-gradient(135deg, #312e81 0%, #4338ca 50%, #4f46e5 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 32px 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-icon-box {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.35rem;
+        }
+
+        /* Option cards */
+        .option-card {
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 13px 16px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            background-color: var(--card-bg);
+        }
+
+        .option-card:hover {
+            border-color: var(--primary);
+            background-color: rgba(79, 70, 229, 0.03);
+        }
+
+        .option-card.selected {
+            border-color: var(--primary);
+            background-color: rgba(79, 70, 229, 0.1);
+            font-weight: 600;
+        }
+
+        .option-card.correct-highlight {
+            border-color: var(--success) !important;
+            background-color: rgba(16, 185, 129, 0.12) !important;
+            color: #065f46 !important;
+            font-weight: 700;
+        }
+
+        .option-card.wrong-highlight {
+            border-color: var(--danger) !important;
+            background-color: rgba(239, 68, 68, 0.12) !important;
+            color: #991b1b !important;
+            font-weight: 700;
+        }
+
+        .option-letter {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background-color: rgba(100, 116, 139, 0.12);
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .option-card.selected .option-letter {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* Question Palette Grid */
+        .palette-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.82rem;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .palette-btn.current {
+            border: 2px solid var(--primary);
+            outline: 2px solid rgba(79, 70, 229, 0.4);
+            font-weight: 800;
+        }
+
+        .palette-btn.answered {
+            background-color: #10b981 !important;
+            color: white !important;
+            border-color: #059669 !important;
+        }
+
+        .palette-btn.flagged {
+            background-color: #f59e0b !important;
+            color: white !important;
+            border-color: #d97706 !important;
+        }
+
+        .timer-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            padding: 5px 12px;
+            border-radius: 8px;
+        }
+
+        .timer-normal {
+            background-color: rgba(79, 70, 229, 0.12);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .timer-warning {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .score-circle {
+            width: 135px;
+            height: 135px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            border: 7px solid;
+        }
+
+        .score-pass {
+            border-color: #10b981;
+            background-color: rgba(16, 185, 129, 0.08);
+            color: #059669;
+        }
+
+        .score-fail {
+            border-color: #ef4444;
+            background-color: rgba(239, 68, 68, 0.08);
+            color: #dc2626;
+        }
+
+        .footer {
+            margin-top: auto;
+            background-color: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 16px 0;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header & Navbar -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container" style="max-width: 1240px;">
+            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-primary py-0 me-3" href="#" onclick="showTab('dashboard')">
+                <i class="fa-solid fa-book-journal-whills fa-lg text-primary"></i>
+                <span>PPSC English Lecturer Portal</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-1 align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="tab-dashboard-link" href="#" onclick="showTab('dashboard')">
+                            <i class="fa-solid fa-house me-1"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="tab-mock-link" href="#" onclick="showTab('mock-intro')">
+                            <i class="fa-solid fa-stopwatch me-1 text-danger"></i> Mock Exam (100 Qs)
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="tab-practice-link" href="#" onclick="showTab('practice')">
+                            <i class="fa-solid fa-layer-group me-1"></i> Subject Practice
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="tab-search-link" href="#" onclick="showTab('search')">
+                            <i class="fa-solid fa-magnifying-glass me-1"></i> MCQ Explorer
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="tab-history-link" href="#" onclick="showTab('history')">
+                            <i class="fa-solid fa-chart-line me-1"></i> Progress Log
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="tab-bookmarks-link" href="#" onclick="showTab('bookmarks')">
+                            <i class="fa-solid fa-bookmark me-1"></i> Saved
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-2 mt-2 mt-lg-0">
+                    <a href="/download-pdf" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 fw-semibold py-1 px-3" title="Download Categorized PDF (2,200+ Solved MCQs)">
+                        <i class="fa-solid fa-file-pdf text-danger"></i>
+                        <span>PDF Guide</span>
+                    </a>
+
+                    <button class="btn btn-light btn-sm border py-1 px-2" id="themeToggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="container my-4 flex-grow-1" style="max-width: 1240px;">
+
+        <!-- ================= TAB 1: DASHBOARD ================= -->
+        <section id="tab-dashboard">
+            <!-- Hero Banner -->
+            <div class="hero-banner mb-4">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <span class="badge bg-warning text-dark fw-bold mb-2 px-3 py-1">
+                            <i class="fa-solid fa-award me-1"></i> PPSC / FPSC / SPSC / KPPSC English Lecturer & Subject Specialist (BS-17)
+                        </span>
+                        <h2 class="fw-extrabold mb-2">Master English Literature & Linguistics</h2>
+                        <p class="opacity-90 mb-3 fs-6">
+                            2,200+ categorized MCQs & solved past papers (2011–2024). Authentic PPSC criteria: <strong>100 MCQs, 90 mins, -0.25 negative marking, 40% passing threshold</strong>.
+                        </p>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button class="btn btn-light btn-md fw-bold text-primary shadow-sm px-4" onclick="startMockTest()">
+                                <i class="fa-solid fa-play me-2"></i> Start PPSC Mock Exam (100 Qs • 90 Mins)
+                            </button>
+                            <button class="btn btn-outline-light btn-md fw-semibold px-3" onclick="showTab('practice')">
+                                <i class="fa-solid fa-book-open me-1"></i> Practice by Topic
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 text-center d-none d-lg-block">
+                        <i class="fa-solid fa-feather-pointed display-2 opacity-75"></i>
+                        <div class="mt-2 fw-bold text-white fs-6">Passing: 40% (40/100) • Negative: -0.25</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4 Metrics Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-md col-6">
+                    <div class="card p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted fw-semibold small">Question Bank</span>
+                            <div class="stat-icon-box bg-primary-subtle text-primary" style="width:38px;height:38px;font-size:1.1rem;">
+                                <i class="fa-solid fa-database"></i>
+                            </div>
+                        </div>
+                        <h4 class="fw-bold mb-0" id="stat-total-q">2,243</h4>
+                        <small class="text-muted">Literature & GK MCQs</small>
+                    </div>
+                </div>
+                <div class="col-md col-6">
+                    <div class="card p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted fw-semibold small">Exams Attempted</span>
+                            <div class="stat-icon-box bg-info-subtle text-info" style="width:38px;height:38px;font-size:1.1rem;">
+                                <i class="fa-solid fa-clipboard-check"></i>
+                            </div>
+                        </div>
+                        <h4 class="fw-bold mb-0" id="stat-total-tests">0</h4>
+                        <small class="text-muted">Personal test sessions</small>
+                    </div>
+                </div>
+                <div class="col-md col-6">
+                    <div class="card p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted fw-semibold small">Avg Net Score</span>
+                            <div class="stat-icon-box bg-warning-subtle text-warning" style="width:38px;height:38px;font-size:1.1rem;">
+                                <i class="fa-solid fa-bullseye"></i>
+                            </div>
+                        </div>
+                        <h4 class="fw-bold mb-0" id="stat-avg-score">0.0</h4>
+                        <small class="text-muted">Negative-adjusted (Min: 40)</small>
+                    </div>
+                </div>
+                <div class="col-md col-6">
+                    <div class="card p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-muted fw-semibold small">Pass Rate</span>
+                            <div class="stat-icon-box bg-success-subtle text-success" style="width:38px;height:38px;font-size:1.1rem;">
+                                <i class="fa-solid fa-trophy"></i>
+                            </div>
+                        </div>
+                        <h4 class="fw-bold mb-0" id="stat-pass-rate">0%</h4>
+                        <small class="text-muted">&ge; 40.0 Qualifying Mark</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subject Breakdown Grid -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0"><i class="fa-solid fa-shapes text-primary me-2"></i>Subject Wise Question Modules</h5>
+                <span class="badge bg-secondary-subtle text-secondary-emphasis fw-semibold">Click any subject to practice</span>
+            </div>
+            
+            <div class="row g-3 mb-4" id="subject-cards-container">
+                <!-- Loaded dynamically -->
+            </div>
+
+            <!-- Recent Attempts -->
+            <div class="card p-3 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>Recent Exam Attempts</h5>
+                    <button class="btn btn-sm btn-outline-primary" onclick="showTab('history')">View Full History</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Test Type</th>
+                                <th>Correct (+1)</th>
+                                <th>Incorrect (-0.25)</th>
+                                <th>Net Score</th>
+                                <th>Status</th>
+                                <th>Time Taken</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-tests-body">
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-4">No exam sessions yet. Click "Start PPSC Mock Exam" to begin!</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 2: MOCK TEST INTRO ================= -->
+        <section id="tab-mock-intro" style="display: none;">
+            <div class="row justify-content-center">
+                <div class="col-lg-9">
+                    <div class="card p-4 text-center">
+                        <div class="stat-icon-box bg-primary-subtle text-primary mx-auto mb-3" style="width: 65px; height: 65px; font-size: 1.8rem;">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+                        <h3 class="fw-bold mb-2">PPSC English Lecturer (BS-17) Mock Examination</h3>
+                        <p class="text-muted mb-4">Authentic 100-MCQ paper adhering strictly to official Punjab Public Service Commission standards.</p>
+
+                        <div class="row g-3 text-start mb-4">
+                            <div class="col-sm-6">
+                                <div class="p-3 border rounded bg-body-tertiary">
+                                    <div class="fw-bold text-primary"><i class="fa-solid fa-list-ol me-2"></i>Total Questions</div>
+                                    <div class="fs-5 fw-extrabold">100 MCQs</div>
+                                    <small class="text-muted">80% Subject (Literature/Linguistics) + 20% GK</small>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="p-3 border rounded bg-body-tertiary">
+                                    <div class="fw-bold text-danger"><i class="fa-solid fa-triangle-exclamation me-2"></i>Negative Marking</div>
+                                    <div class="fs-5 fw-extrabold text-danger">-0.25 Marks</div>
+                                    <small class="text-muted">0.25 marks deducted for every wrong answer</small>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="p-3 border rounded bg-body-tertiary">
+                                    <div class="fw-bold text-success"><i class="fa-solid fa-check-double me-2"></i>Qualifying Criteria</div>
+                                    <div class="fs-5 fw-extrabold text-success">40.0 Marks (40%)</div>
+                                    <small class="text-muted">Official PPSC minimum passing score</small>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="p-3 border rounded bg-body-tertiary">
+                                    <div class="fw-bold text-warning"><i class="fa-solid fa-hourglass-half me-2"></i>Time Allowed</div>
+                                    <div class="fs-5 fw-extrabold">90 Minutes</div>
+                                    <small class="text-muted">54 seconds per question</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary btn-lg fw-bold px-5 py-3 shadow" onclick="startMockTest()">
+                            <i class="fa-solid fa-play me-2"></i> I am Ready - Start PPSC Exam
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= EXAM ACTIVE SCREEN ================= -->
+        <section id="tab-mock-active" style="display: none;">
+            <div class="card p-3 mb-3 sticky-top bg-body shadow-sm" style="top: 60px; z-index: 990;">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fw-bold fs-5 text-primary" id="exam-q-counter">Q 1 of 100</span>
+                        <span class="badge bg-secondary" id="exam-q-subject">Subject</span>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-clock text-muted"></i>
+                        <span class="timer-badge timer-normal" id="exam-timer">90:00</span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-warning btn-sm fw-semibold" id="btn-flag-q" onclick="toggleFlagQuestion()">
+                            <i class="fa-solid fa-flag me-1"></i> <span id="flag-btn-text">Flag</span>
+                        </button>
+                        <button class="btn btn-success btn-sm fw-bold px-3" onclick="confirmSubmitTest()">
+                            <i class="fa-solid fa-check me-1"></i> Submit Paper
+                        </button>
+                    </div>
+                </div>
+                <div class="progress mt-2" style="height: 5px;">
+                    <div class="progress-bar bg-primary" id="exam-progress-bar" style="width: 1%;"></div>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-lg-8">
+                    <div class="card p-4 min-vh-50">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-2 fs-6" id="display-q-number">Question #1</span>
+                            <button class="btn btn-sm btn-light border" onclick="toggleBookmarkCurrentQuestion()" title="Bookmark Question">
+                                <i class="fa-regular fa-bookmark" id="current-q-bookmark-icon"></i>
+                            </button>
+                        </div>
+
+                        <h4 class="fw-bold mb-3 lh-base" id="display-q-text">Loading question statement...</h4>
+
+                        <div id="display-options-container" class="mt-3"></div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                            <button class="btn btn-outline-secondary px-4 fw-semibold" id="btn-prev-q" onclick="prevQuestion()">
+                                <i class="fa-solid fa-arrow-left me-1"></i> Previous
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" onclick="clearCurrentChoice()">
+                                <i class="fa-solid fa-xmark me-1"></i> Leave Blank (0.0)
+                            </button>
+                            <button class="btn btn-primary px-4 fw-semibold" id="btn-next-q" onclick="nextQuestion()">
+                                Next <i class="fa-solid fa-arrow-right ms-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card p-3 sticky-top" style="top: 150px;">
+                        <h6 class="fw-bold mb-2"><i class="fa-solid fa-table-cells me-2 text-primary"></i>PPSC Question Palette</h6>
+                        
+                        <div class="d-flex flex-wrap gap-2 small text-muted mb-3 pb-2 border-bottom">
+                            <span class="d-flex align-items-center gap-1"><span class="palette-btn answered" style="width:14px;height:14px;"></span> Attempted</span>
+                            <span class="d-flex align-items-center gap-1"><span class="palette-btn flagged" style="width:14px;height:14px;"></span> Flagged</span>
+                            <span class="d-flex align-items-center gap-1"><span class="palette-btn current" style="width:14px;height:14px;"></span> Current</span>
+                            <span class="d-flex align-items-center gap-1"><span class="palette-btn" style="width:14px;height:14px;"></span> Blank</span>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2 overflow-y-auto" style="max-height: 340px;" id="palette-grid"></div>
+
+                        <div class="mt-3 pt-2 border-top d-flex justify-content-between text-muted small">
+                            <span>Attempted: <strong class="text-success" id="palette-answered-count">0</strong></span>
+                            <span>Flagged: <strong class="text-warning" id="palette-flagged-count">0</strong></span>
+                            <span>Blank: <strong class="text-danger" id="palette-remaining-count">100</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= EXAM RESULTS SCREEN ================= -->
+        <section id="tab-mock-result" style="display: none;">
+            <div class="row justify-content-center mb-4">
+                <div class="col-lg-10">
+                    <div class="card p-4 text-center">
+                        <h3 class="fw-bold mb-3">PPSC Official Examination Scorecard</h3>
+
+                        <div class="mb-4">
+                            <div class="score-circle mb-3" id="result-score-circle">
+                                <span class="display-5 fw-extrabold" id="result-score-val">0.0</span>
+                                <span class="fs-6 fw-semibold text-muted">/ 100</span>
+                            </div>
+                            <h2 class="fw-extrabold mb-1" id="result-status-title">PASSED</h2>
+                            <p class="text-muted" id="result-status-subtitle">You have cleared the PPSC 40% qualifying threshold.</p>
+                        </div>
+
+                        <!-- 4 Breakdown Boxes -->
+                        <div class="row g-3 mb-4 text-start">
+                            <div class="col-md-3 col-6">
+                                <div class="p-3 border rounded bg-body-tertiary">
+                                    <small class="text-muted d-block">Correct (+1.0)</small>
+                                    <strong class="fs-5 text-success" id="result-correct-count">0</strong>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="p-3 border rounded bg-body-tertiary">
+                                    <small class="text-muted d-block">Incorrect (-0.25)</small>
+                                    <strong class="fs-5 text-danger" id="result-wrong-count">0</strong>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="p-3 border rounded bg-body-tertiary">
+                                    <small class="text-muted d-block">Negative Deduction</small>
+                                    <strong class="fs-5 text-danger" id="result-neg-deduction">-0.00</strong>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="p-3 border rounded bg-body-tertiary">
+                                    <small class="text-muted d-block">Unattempted (0.0)</small>
+                                    <strong class="fs-5 text-secondary" id="result-unattempted-count">0</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-start mb-4">
+                            <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-column text-primary me-2"></i>Subject Performance Breakdown</h5>
+                            <div class="row g-2" id="result-subject-breakdown"></div>
+                        </div>
+
+                        <div class="d-flex flex-wrap justify-content-center gap-2 pt-3 border-top">
+                            <button class="btn btn-primary fw-bold px-4" onclick="startMockTest()">
+                                <i class="fa-solid fa-rotate-right me-1"></i> Retake Full Mock Exam
+                            </button>
+                            <button class="btn btn-outline-danger fw-bold px-4" id="btn-retake-missed" onclick="retakeMissedQuestions()">
+                                <i class="fa-solid fa-triangle-exclamation me-1"></i> Retake Missed Questions
+                            </button>
+                            <button class="btn btn-outline-secondary fw-bold px-4" onclick="showTab('dashboard')">
+                                <i class="fa-solid fa-house me-1"></i> Dashboard
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Review -->
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="fw-bold mb-0"><i class="fa-solid fa-magnifying-glass-chart text-primary me-2"></i>Detailed Question Review</h4>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-secondary active" onclick="filterReview('all')">All</button>
+                            <button class="btn btn-outline-success" onclick="filterReview('correct')">Correct</button>
+                            <button class="btn btn-outline-danger" onclick="filterReview('incorrect')">Incorrect (-0.25)</button>
+                            <button class="btn btn-outline-secondary" onclick="filterReview('unattempted')">Unattempted</button>
+                        </div>
+                    </div>
+
+                    <div id="detailed-review-container"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 3: SUBJECT PRACTICE ================= -->
+        <section id="tab-practice" style="display: none;">
+            <div class="card p-4 mb-4">
+                <h4 class="fw-bold mb-3"><i class="fa-solid fa-book-open text-primary me-2"></i>Subject-Wise Literature & GK Practice</h4>
+                
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-5">
+                        <label class="form-label fw-bold small text-muted">Select Literature Module</label>
+                        <select class="form-select form-select-md" id="practice-subject-select">
+                            <option value="all">All Literature & GK (Mixed Practice)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold small text-muted">Number of MCQs</label>
+                        <select class="form-select form-select-md" id="practice-limit-select">
+                            <option value="10">10 Questions (Quick)</option>
+                            <option value="25" selected>25 Questions (Standard)</option>
+                            <option value="50">50 Questions (In-depth)</option>
+                            <option value="100">100 Questions (Full Mock)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold small text-muted">Mode</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="practiceMode" id="modeLearn" value="learn" checked>
+                            <label class="btn btn-outline-primary py-2" for="modeLearn">
+                                <i class="fa-solid fa-lightbulb me-1"></i> Learn Mode
+                            </label>
+                            
+                            <input type="radio" class="btn-check" name="practiceMode" id="modeTest" value="test">
+                            <label class="btn btn-outline-primary py-2" for="modeTest">
+                                <i class="fa-solid fa-vial me-1"></i> Quiz Mode
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3 text-end">
+                    <button class="btn btn-primary btn-md fw-bold px-4" onclick="loadPracticeSession()">
+                        <i class="fa-solid fa-play me-2"></i> Start Practice Session
+                    </button>
+                </div>
+            </div>
+
+            <div id="practice-active-container" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0" id="practice-session-title">Practice Session</h5>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('practice-active-container').style.display='none'">
+                        <i class="fa-solid fa-xmark me-1"></i> Close Practice
+                    </button>
+                </div>
+                <div id="practice-questions-list"></div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 4: MCQ EXPLORER / SEARCH ================= -->
+        <section id="tab-search" style="display: none;">
+            <div class="card p-4 mb-4">
+                <h4 class="fw-bold mb-3"><i class="fa-solid fa-magnifying-glass text-primary me-2"></i>English Literature MCQ Explorer & Repository</h4>
+                <div class="row g-3">
+                    <div class="col-md-7">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fa-solid fa-search"></i></span>
+                            <input type="text" class="form-control" id="search-input" placeholder="Search keywords (e.g. 'Shakespeare', 'Chaucer', 'Phoneme', 'Catharsis')..." onkeyup="debounceSearch()">
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <select class="form-select" id="search-subject-select" onchange="performSearch()">
+                            <option value="all">Filter by: All Topics</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted fw-semibold" id="search-results-count">Showing results...</span>
+            </div>
+
+            <div id="search-results-list"></div>
+
+            <nav class="mt-4 d-flex justify-content-center">
+                <ul class="pagination" id="search-pagination"></ul>
+            </nav>
+        </section>
+
+        <!-- ================= TAB 5: TEST HISTORY & PROGRESS ================= -->
+        <section id="tab-history" style="display: none;">
+            <div class="card p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h4 class="fw-bold mb-1"><i class="fa-solid fa-chart-line text-primary me-2"></i>PPSC Exam Progress & Score History</h4>
+                        <p class="text-muted mb-0 small">Personal history log stored in your browser storage with automatic negative marking calculations.</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-danger btn-sm" onclick="clearTestHistory()">
+                            <i class="fa-solid fa-trash me-1"></i> Clear Log
+                        </button>
+                        <button class="btn btn-primary fw-bold btn-sm" onclick="startMockTest()">
+                            <i class="fa-solid fa-plus me-1"></i> New Exam
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mb-4 p-3 border rounded bg-body-tertiary" style="height: 240px;">
+                    <canvas id="progressChart"></canvas>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Exam Title</th>
+                                <th>Correct (+1)</th>
+                                <th>Incorrect (-0.25)</th>
+                                <th>Net Score</th>
+                                <th>Status</th>
+                                <th>Time Taken</th>
+                                <th>Date & Time</th>
+                                <th>Review</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 6: BOOKMARKS & SAVED ================= -->
+        <section id="tab-bookmarks" style="display: none;">
+            <div class="card p-4 mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="fw-bold mb-1"><i class="fa-solid fa-bookmark text-primary me-2"></i>Bookmarked Literature MCQs</h4>
+                        <p class="text-muted mb-0 small">Star challenging questions during practice to master key literary authors, dates, and linguistic concepts.</p>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-primary px-3 py-2 fs-6" id="bookmarks-count-badge">0 Saved</span>
+                        <button class="btn btn-sm btn-outline-danger" onclick="clearAllBookmarks()">Clear All</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="bookmarks-list"></div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container text-center" style="max-width: 1240px;">
+            <p class="mb-1 fw-semibold">PPSC / FPSC / SPSC / KPPSC English Lecturer (BS-17) & Subject Specialist Portal</p>
+            <p class="text-muted small mb-0">2,243 Past & Standardized MCQs (PPSC Rules: 100 Qs • 90 Mins • -0.25 Negative Marking • 40% Pass).</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Application Engine -->
+    <script>
+        const StorageManager = {
+            KEYS: {
+                TEST_HISTORY: 'ppsc_eng_test_history_v1',
+                BOOKMARKS: 'ppsc_eng_bookmarks_v1'
+            },
+
+            getTestHistory() {
+                try {
+                    return JSON.parse(localStorage.getItem(this.KEYS.TEST_HISTORY)) || [];
+                } catch (e) {
+                    return [];
+                }
+            },
+
+            saveTestResult(result) {
+                const history = this.getTestHistory();
+                result.id = Date.now();
+                result.created_at = new Date().toISOString();
+                history.unshift(result);
+                localStorage.setItem(this.KEYS.TEST_HISTORY, JSON.stringify(history));
+                return result;
+            },
+
+            clearTestHistory() {
+                localStorage.removeItem(this.KEYS.TEST_HISTORY);
+            },
+
+            getBookmarks() {
+                try {
+                    return JSON.parse(localStorage.getItem(this.KEYS.BOOKMARKS)) || [];
+                } catch (e) {
+                    return [];
+                }
+            },
+
+            isBookmarked(qId) {
+                const bookmarks = this.getBookmarks();
+                return bookmarks.some(b => b.id === qId);
+            },
+
+            addBookmark(q) {
+                const bookmarks = this.getBookmarks();
+                if (!bookmarks.some(b => b.id === q.id)) {
+                    bookmarks.unshift({
+                        id: q.id,
+                        question: q.question,
+                        options: q.options || [],
+                        correct_answer: q.correct_answer,
+                        correct_letter: q.correct_letter,
+                        explanation: q.explanation || '',
+                        subject: q.subject,
+                        bookmarked_at: new Date().toISOString()
+                    });
+                    localStorage.setItem(this.KEYS.BOOKMARKS, JSON.stringify(bookmarks));
+                }
+            },
+
+            removeBookmark(qId) {
+                let bookmarks = this.getBookmarks();
+                bookmarks = bookmarks.filter(b => b.id !== qId);
+                localStorage.setItem(this.KEYS.BOOKMARKS, JSON.stringify(bookmarks));
+            },
+
+            clearAllBookmarks() {
+                localStorage.removeItem(this.KEYS.BOOKMARKS);
+            }
+        };
+
+        let appState = {
+            subjects: [],
+            currentExam: null,
+            practiceMode: 'learn',
+            searchTimer: null
+        };
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadSubjects();
+            await loadServerQuestionStats();
+            updateDashboardStats();
+            setupProgressChart();
+        });
+
+        function showTab(tabName) {
+            const tabs = ['dashboard', 'mock-intro', 'mock-active', 'mock-result', 'practice', 'search', 'history', 'bookmarks'];
+            tabs.forEach(t => {
+                const el = document.getElementById(`tab-${t}`);
+                if (el) el.style.display = (t === tabName) ? 'block' : 'none';
+                
+                const link = document.getElementById(`tab-${t}-link`);
+                if (link) {
+                    if (t === tabName) link.classList.add('active');
+                    else link.classList.remove('active');
+                }
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            if (tabName === 'dashboard') updateDashboardStats();
+            if (tabName === 'history') loadTestHistory();
+            if (tabName === 'bookmarks') loadBookmarksList();
+            if (tabName === 'search') performSearch();
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const current = html.getAttribute('data-bs-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-bs-theme', next);
+            const icon = document.querySelector('#themeToggle i');
+            icon.className = next === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
+
+        async function loadServerQuestionStats() {
+            try {
+                const res = await fetch('/api/stats');
+                const data = await res.json();
+                if (data.total_questions) {
+                    document.getElementById('stat-total-q').innerText = data.total_questions.toLocaleString();
+                }
+            } catch (e) {
+                document.getElementById('stat-total-q').innerText = "2,243";
+            }
+        }
+
+        function updateDashboardStats() {
+            const history = StorageManager.getTestHistory();
+            const totalTests = history.length;
+            let avgScore = 0;
+            let totalPassed = 0;
+
+            if (totalTests > 0) {
+                const sumScore = history.reduce((acc, t) => acc + (t.net_score || 0), 0);
+                avgScore = Math.round((sumScore / totalTests) * 10) / 10;
+                totalPassed = history.filter(t => t.passed).length;
+            }
+
+            const passRate = totalTests > 0 ? Math.round((totalPassed / totalTests) * 100) : 0;
+
+            document.getElementById('stat-total-tests').innerText = totalTests;
+            document.getElementById('stat-avg-score').innerText = `${avgScore} / 100`;
+            document.getElementById('stat-pass-rate').innerText = `${passRate}%`;
+
+            renderRecentTests(history);
+        }
+
+        function renderRecentTests(history) {
+            const tbody = document.getElementById('recent-tests-body');
+            tbody.innerHTML = '';
+
+            if (!history || history.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">No exam sessions yet. Click "Start PPSC Mock Exam" to begin!</td></tr>';
+                return;
+            }
+
+            history.slice(0, 5).forEach((h, index) => {
+                const m = Math.floor(h.time_taken_seconds / 60);
+                const s = h.time_taken_seconds % 60;
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${h.test_type || 'PPSC Mock Exam'}</strong></td>
+                        <td><span class="text-success fw-bold">${h.correct_count}</span></td>
+                        <td><span class="text-danger fw-bold">${h.incorrect_count} (-${h.negative_deduction})</span></td>
+                        <td><strong class="fs-6 ${h.passed ? 'text-success' : 'text-danger'}">${h.net_score}</strong></td>
+                        <td><span class="badge ${h.passed ? 'bg-success' : 'bg-danger'}">${h.passed ? 'PASSED (≥40)' : 'FAILED (<40)'}</span></td>
+                        <td>${m}m ${s}s</td>
+                        <td><small class="text-muted">${new Date(h.created_at).toLocaleDateString()}</small></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" onclick="viewHistoryDetail(${index})">
+                                Review
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function loadSubjects() {
+            try {
+                const res = await fetch('/api/subjects');
+                const subjects = await res.json();
+                appState.subjects = subjects;
+
+                const container = document.getElementById('subject-cards-container');
+                const practiceSelect = document.getElementById('practice-subject-select');
+                const searchSelect = document.getElementById('search-subject-select');
+
+                container.innerHTML = '';
+                practiceSelect.innerHTML = '<option value="all">All Literature & GK (Mixed Practice)</option>';
+                searchSelect.innerHTML = '<option value="all">Filter by: All Topics</option>';
+
+                const subjectIcons = {
+                    "Classical & Romantic Poetry": "fa-feather text-primary",
+                    "Drama & Theatre": "fa-masks-theater text-purple",
+                    "Novels, Fiction & Prose": "fa-book-open-reader text-teal",
+                    "Modern & Post-Modern Poetry": "fa-pen-fancy text-indigo",
+                    "Linguistics & Phonetics": "fa-language text-info",
+                    "Literary Theory & Criticism": "fa-scale-balanced text-warning",
+                    "American & World Literature": "fa-earth-americas text-danger",
+                    "History of English Literature": "fa-landmark text-secondary",
+                    "Grammar, Vocabulary & Figures of Speech": "fa-spell-check text-success",
+                    "General Knowledge & Pakistan Studies": "fa-flag text-emerald"
+                };
+
+                subjects.forEach(s => {
+                    const icon = subjectIcons[s.subject] || "fa-book text-primary";
+                    container.innerHTML += `
+                        <div class="col-md-3 col-sm-6">
+                            <div class="card card-hover p-3 h-100">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <div class="stat-icon-box bg-body-tertiary" style="width:36px;height:36px;font-size:1rem;">
+                                        <i class="fa-solid ${icon}"></i>
+                                    </div>
+                                    <div class="overflow-hidden">
+                                        <h6 class="fw-bold mb-0 text-truncate" title="${s.subject}">${s.subject}</h6>
+                                        <small class="text-muted">${s.count} MCQs</small>
+                                    </div>
+                                </div>
+                                <button class="btn btn-xs btn-outline-primary mt-auto fw-semibold w-100 py-1" onclick="startSubjectPractice('${s.subject}')">
+                                    <i class="fa-solid fa-play me-1"></i> Practice
+                                </button>
+                            </div>
+                        </div>
+                    `;
+
+                    practiceSelect.innerHTML += `<option value="${s.subject}">${s.subject} (${s.count} Qs)</option>`;
+                    searchSelect.innerHTML += `<option value="${s.subject}">${s.subject}</option>`;
+                });
+            } catch (err) {
+                console.error("Failed to load subjects", err);
+            }
+        }
+
+        // ================= PPSC MOCK EXAM ENGINE =================
+        async function startMockTest() {
+            showTab('mock-active');
+            document.getElementById('display-q-text').innerText = "Loading 100 PPSC English Lecturer MCQs...";
+            document.getElementById('display-options-container').innerHTML = `
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted fw-semibold">Generating authentic 100-question PPSC English Lecturer blueprint...</p>
+                </div>
+            `;
+
+            try {
+                const res = await fetch('/api/mock-test');
+                const data = await res.json();
+                
+                appState.currentExam = {
+                    questions: data.questions,
+                    total: data.questions.length,
+                    durationMinutes: data.duration_minutes || 90,
+                    secondsRemaining: (data.duration_minutes || 90) * 60,
+                    userAnswers: {},
+                    flagged: new Set(),
+                    currentIndex: 0,
+                    startTime: Date.now()
+                };
+
+                renderPaletteGrid();
+                renderCurrentExamQuestion();
+                startExamTimer();
+
+            } catch (err) {
+                alert("Error loading mock test questions. Please check connection.");
+                showTab('dashboard');
+            }
+        }
+
+        function startExamTimer() {
+            if (appState.currentExam.timerInterval) clearInterval(appState.currentExam.timerInterval);
+
+            updateTimerDisplay();
+            appState.currentExam.timerInterval = setInterval(() => {
+                appState.currentExam.secondsRemaining--;
+                updateTimerDisplay();
+
+                if (appState.currentExam.secondsRemaining <= 0) {
+                    clearInterval(appState.currentExam.timerInterval);
+                    alert("⏰ Time is up! 90 minutes have elapsed. Submitting test now...");
+                    submitExam();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const sec = appState.currentExam.secondsRemaining;
+            const m = Math.floor(sec / 60);
+            const s = sec % 60;
+            const formatted = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            
+            const timerEl = document.getElementById('exam-timer');
+            timerEl.innerText = formatted;
+
+            if (sec <= 300) {
+                timerEl.classList.remove('timer-normal');
+                timerEl.classList.add('timer-warning');
+            } else {
+                timerEl.classList.add('timer-normal');
+                timerEl.classList.remove('timer-warning');
+            }
+        }
+
+        function renderPaletteGrid() {
+            const grid = document.getElementById('palette-grid');
+            grid.innerHTML = '';
+            for (let i = 0; i < appState.currentExam.total; i++) {
+                grid.innerHTML += `
+                    <button class="palette-btn" id="pal-btn-${i}" onclick="jumpToQuestion(${i})">
+                        ${i + 1}
+                    </button>
+                `;
+            }
+            updatePaletteStatus();
+        }
+
+        function updatePaletteStatus() {
+            const exam = appState.currentExam;
+            let answeredCount = 0;
+            let flaggedCount = exam.flagged.size;
+
+            for (let i = 0; i < exam.total; i++) {
+                const btn = document.getElementById(`pal-btn-${i}`);
+                if (!btn) continue;
+
+                btn.className = 'palette-btn';
+                if (i === exam.currentIndex) btn.classList.add('current');
+                
+                const qId = exam.questions[i].id;
+                if (exam.userAnswers[qId]) {
+                    btn.classList.add('answered');
+                    answeredCount++;
+                } else if (exam.flagged.has(i)) {
+                    btn.classList.add('flagged');
+                }
+            }
+
+            document.getElementById('palette-answered-count').innerText = answeredCount;
+            document.getElementById('palette-flagged-count').innerText = flaggedCount;
+            document.getElementById('palette-remaining-count').innerText = exam.total - answeredCount;
+
+            const percent = Math.round((answeredCount / exam.total) * 100);
+            document.getElementById('exam-progress-bar').style.width = `${percent}%`;
+        }
+
+        function renderCurrentExamQuestion() {
+            const exam = appState.currentExam;
+            const q = exam.questions[exam.currentIndex];
+            
+            document.getElementById('exam-q-counter').innerText = `Q ${exam.currentIndex + 1} of ${exam.total}`;
+            document.getElementById('display-q-number').innerText = `Question #${exam.currentIndex + 1}`;
+            document.getElementById('exam-q-subject').innerText = q.subject;
+            document.getElementById('display-q-text').innerText = q.question;
+
+            const isFlagged = exam.flagged.has(exam.currentIndex);
+            document.getElementById('flag-btn-text').innerText = isFlagged ? "Unflag" : "Flag";
+            document.getElementById('btn-flag-q').className = isFlagged ? "btn btn-warning btn-sm fw-bold" : "btn btn-outline-warning btn-sm fw-semibold";
+
+            const isBookmarked = StorageManager.isBookmarked(q.id);
+            const bmIcon = document.getElementById('current-q-bookmark-icon');
+            bmIcon.className = isBookmarked ? 'fa-solid text-warning fa-bookmark' : 'fa-regular fa-bookmark';
+
+            const optContainer = document.getElementById('display-options-container');
+            optContainer.innerHTML = '';
+
+            const selectedAns = exam.userAnswers[q.id];
+
+            q.options.forEach(opt => {
+                const isSelected = selectedAns === opt.text;
+                optContainer.innerHTML += `
+                    <div class="option-card ${isSelected ? 'selected' : ''}" onclick="selectExamOption(${q.id}, '${escapeQuote(opt.text)}')">
+                        <div class="option-letter">${opt.letter}</div>
+                        <div class="flex-grow-1">${opt.text}</div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('btn-prev-q').disabled = (exam.currentIndex === 0);
+            document.getElementById('btn-next-q').innerText = (exam.currentIndex === exam.total - 1) ? "Review & Finish" : "Next";
+
+            updatePaletteStatus();
+        }
+
+        function toggleBookmarkCurrentQuestion() {
+            const exam = appState.currentExam;
+            const q = exam.questions[exam.currentIndex];
+            if (StorageManager.isBookmarked(q.id)) {
+                StorageManager.removeBookmark(q.id);
+            } else {
+                StorageManager.addBookmark(q);
+            }
+            renderCurrentExamQuestion();
+        }
+
+        function selectExamOption(qId, text) {
+            appState.currentExam.userAnswers[qId] = text;
+            renderCurrentExamQuestion();
+        }
+
+        function clearCurrentChoice() {
+            const qId = appState.currentExam.questions[appState.currentExam.currentIndex].id;
+            delete appState.currentExam.userAnswers[qId];
+            renderCurrentExamQuestion();
+        }
+
+        function toggleFlagQuestion() {
+            const idx = appState.currentExam.currentIndex;
+            if (appState.currentExam.flagged.has(idx)) {
+                appState.currentExam.flagged.delete(idx);
+            } else {
+                appState.currentExam.flagged.add(idx);
+            }
+            renderCurrentExamQuestion();
+        }
+
+        function prevQuestion() {
+            if (appState.currentExam.currentIndex > 0) {
+                appState.currentExam.currentIndex--;
+                renderCurrentExamQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (appState.currentExam.currentIndex < appState.currentExam.total - 1) {
+                appState.currentExam.currentIndex++;
+                renderCurrentExamQuestion();
+            } else {
+                confirmSubmitTest();
+            }
+        }
+
+        function jumpToQuestion(index) {
+            appState.currentExam.currentIndex = index;
+            renderCurrentExamQuestion();
+        }
+
+        function confirmSubmitTest() {
+            const exam = appState.currentExam;
+            const answered = Object.keys(exam.userAnswers).length;
+            const unanswered = exam.total - answered;
+            
+            const msg = `PPSC EXAM SUBMISSION:\n\nAttempted: ${answered} Questions (+1.0 per correct, -0.25 per incorrect)\nUnattempted: ${unanswered} Questions (0.0 deduction)\n\nAre you sure you want to submit your paper?`;
+            if (confirm(msg)) {
+                submitExam();
+            }
+        }
+
+        async function submitExam() {
+            clearInterval(appState.currentExam.timerInterval);
+            
+            const exam = appState.currentExam;
+            const timeTaken = Math.round((Date.now() - exam.startTime) / 1000);
+            const questionIds = exam.questions.map(q => q.id);
+
+            const payload = {
+                test_type: "PPSC English Lecturer Full Mock Exam",
+                subject: "English Literature & GK",
+                total_questions: exam.total,
+                time_taken_seconds: timeTaken,
+                answers: exam.userAnswers,
+                question_ids: questionIds
+            };
+
+            try {
+                const res = await fetch('/api/submit-test', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                
+                StorageManager.saveTestResult({
+                    test_type: payload.test_type,
+                    subject: payload.subject,
+                    total_questions: result.total_questions,
+                    net_score: result.net_score,
+                    raw_score: result.raw_score,
+                    negative_deduction: result.negative_deduction,
+                    correct_count: result.correct_count,
+                    incorrect_count: result.incorrect_count,
+                    unattempted_count: result.unattempted_count,
+                    percentage: result.percentage,
+                    passed: result.passed,
+                    time_taken_seconds: result.time_taken_seconds,
+                    details: {
+                        subject_stats: result.subject_stats,
+                        detailed_review: result.detailed_review
+                    }
+                });
+
+                displayTestResults(result);
+                updateDashboardStats();
+            } catch (err) {
+                alert("Error evaluating test.");
+            }
+        }
+
+        function displayTestResults(result) {
+            showTab('mock-result');
+            appState.lastResult = result;
+
+            document.getElementById('result-score-val').innerText = result.net_score;
+            
+            const m = Math.floor(result.time_taken_seconds / 60);
+            const s = result.time_taken_seconds % 60;
+            
+            document.getElementById('result-correct-count').innerText = `${result.correct_count} (+${result.raw_score})`;
+            document.getElementById('result-wrong-count').innerText = `${result.incorrect_count} questions`;
+            document.getElementById('result-neg-deduction').innerText = `-${result.negative_deduction} marks`;
+            document.getElementById('result-unattempted-count').innerText = `${result.unattempted_count} questions`;
+
+            const circle = document.getElementById('result-score-circle');
+            const title = document.getElementById('result-status-title');
+            const sub = document.getElementById('result-status-subtitle');
+
+            if (result.passed) {
+                circle.className = 'score-circle score-pass mb-3';
+                title.innerText = 'CONGRATULATIONS - PASSED!';
+                title.className = 'fw-extrabold mb-1 text-success';
+                sub.innerText = `You achieved a net score of ${result.net_score}/100, successfully exceeding the PPSC 40% qualifying threshold!`;
+            } else {
+                circle.className = 'score-circle score-fail mb-3';
+                title.innerText = 'QUALIFYING THRESHOLD MISSED';
+                title.className = 'fw-extrabold mb-1 text-danger';
+                sub.innerText = `Net score: ${result.net_score}/100 (Negative deduction: -${result.negative_deduction}). PPSC requires minimum 40.0 marks.`;
+            }
+
+            const subjContainer = document.getElementById('result-subject-breakdown');
+            subjContainer.innerHTML = '';
+            for (const [subj, data] of Object.entries(result.subject_stats)) {
+                const subNet = Math.max(0, Math.round((data.correct * 1.0 - data.incorrect * 0.25) * 10) / 10);
+                const p = Math.round((data.correct / data.total) * 100);
+                subjContainer.innerHTML += `
+                    <div class="col-md-6">
+                        <div class="p-2 border rounded bg-body-tertiary">
+                            <div class="d-flex justify-content-between small fw-bold mb-1">
+                                <span class="text-truncate me-2">${subj}</span>
+                                <span>${data.correct} Correct, ${data.incorrect} Wrong (Net: ${subNet})</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar ${subNet >= (data.total * 0.4) ? 'bg-success' : 'bg-danger'}" style="width: ${p}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderReviewQuestions(result.detailed_review);
+        }
+
+        function renderReviewQuestions(questions) {
+            const container = document.getElementById('detailed-review-container');
+            container.innerHTML = '';
+
+            questions.forEach((q, idx) => {
+                const isCorrect = q.is_correct;
+                const isAttempted = q.is_attempted;
+                let statusClass = 'border-secondary';
+                let badgeHtml = '<span class="badge bg-secondary">Unattempted (0.0)</span>';
+
+                if (isCorrect) {
+                    statusClass = 'border-success';
+                    badgeHtml = '<span class="badge bg-success"><i class="fa-solid fa-check me-1"></i> Correct (+1.0)</span>';
+                } else if (isAttempted) {
+                    statusClass = 'border-danger';
+                    badgeHtml = '<span class="badge bg-danger"><i class="fa-solid fa-xmark me-1"></i> Incorrect (-0.25)</span>';
+                }
+
+                container.innerHTML += `
+                    <div class="card p-3 mb-3 border-start border-4 ${statusClass} review-item" data-status="${isCorrect ? 'correct' : (isAttempted ? 'incorrect' : 'unattempted')}">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            ${badgeHtml}
+                            <span class="badge bg-secondary-subtle text-secondary-emphasis">${q.subject}</span>
+                        </div>
+
+                        <h6 class="fw-bold mb-2">Q${idx + 1}. ${q.question}</h6>
+
+                        <div class="row g-2 mb-2">
+                            <div class="col-sm-6">
+                                <div class="small p-2 rounded ${isCorrect ? 'bg-success-subtle text-success-emphasis' : (isAttempted ? 'bg-danger-subtle text-danger-emphasis' : 'bg-body-secondary')}">
+                                    <strong>Your Answer:</strong> ${q.user_answer ? q.user_answer : '<em class="text-muted">Left Blank (0.0 deduction)</em>'}
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="small p-2 rounded bg-success-subtle text-success-emphasis">
+                                    <strong>Correct Answer:</strong> [${q.correct_letter}] ${q.correct_answer}
+                                </div>
+                            </div>
+                        </div>
+
+                        ${q.explanation ? `
+                            <div class="small p-2 bg-body-tertiary rounded text-muted mt-1">
+                                <strong class="text-primary"><i class="fa-solid fa-circle-info me-1"></i>Explanation:</strong> ${q.explanation}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+        }
+
+        function filterReview(type) {
+            document.querySelectorAll('.review-item').forEach(el => {
+                if (type === 'all') el.style.display = 'block';
+                else el.style.display = (el.getAttribute('data-status') === type) ? 'block' : 'none';
+            });
+        }
+
+        function retakeMissedQuestions() {
+            if (!appState.lastResult) return;
+            const missed = appState.lastResult.detailed_review.filter(q => !q.is_correct);
+            if (missed.length === 0) {
+                alert("You scored 100%! No missed questions to retake.");
+                return;
+            }
+
+            appState.currentExam = {
+                questions: missed,
+                total: missed.length,
+                durationMinutes: Math.ceil(missed.length * 0.9),
+                secondsRemaining: Math.ceil(missed.length * 0.9) * 60,
+                userAnswers: {},
+                flagged: new Set(),
+                currentIndex: 0,
+                startTime: Date.now()
+            };
+
+            showTab('mock-active');
+            renderPaletteGrid();
+            renderCurrentExamQuestion();
+            startExamTimer();
+        }
+
+        // ================= SUBJECT PRACTICE SESSION =================
+        function startSubjectPractice(subject) {
+            showTab('practice');
+            document.getElementById('practice-subject-select').value = subject;
+            loadPracticeSession();
+        }
+
+        async function loadPracticeSession() {
+            const subject = document.getElementById('practice-subject-select').value;
+            const limit = document.getElementById('practice-limit-select').value;
+            const isLearnMode = document.getElementById('modeLearn').checked;
+
+            const container = document.getElementById('practice-active-container');
+            const list = document.getElementById('practice-questions-list');
+            
+            container.style.display = 'block';
+            list.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>';
+
+            try {
+                const res = await fetch(`/api/practice?subject=${encodeURIComponent(subject)}&limit=${limit}`);
+                const data = await res.json();
+                
+                document.getElementById('practice-session-title').innerText = `${subject === 'all' ? 'All Subjects' : subject} (${data.questions.length} MCQs)`;
+
+                list.innerHTML = '';
+                data.questions.forEach((q, idx) => {
+                    list.innerHTML += `
+                        <div class="card p-3 mb-3" id="practice-q-card-${q.id}">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="badge bg-primary-subtle text-primary fw-bold">Q ${idx + 1}</span>
+                                <span class="badge bg-secondary-subtle text-secondary-emphasis">${q.subject}</span>
+                            </div>
+
+                            <h5 class="fw-bold mb-2">${q.question}</h5>
+
+                            <div class="options-group mt-3" id="practice-opts-${q.id}">
+                                ${q.options.map(opt => `
+                                    <div class="option-card" onclick="handlePracticeOptionClick(${q.id}, '${escapeQuote(opt.text)}', '${escapeQuote(q.correct_answer)}', ${isLearnMode})">
+                                        <div class="option-letter">${opt.letter}</div>
+                                        <div class="flex-grow-1">${opt.text}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+
+                            <div class="practice-exp mt-3 p-3 bg-body-tertiary rounded border" id="practice-exp-${q.id}" style="display: none;">
+                                <div class="fw-bold text-success mb-1"><i class="fa-solid fa-circle-check me-1"></i> Correct Answer: [${q.correct_letter}] ${q.correct_answer}</div>
+                                ${q.explanation ? `<div class="small text-muted">${q.explanation}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+
+            } catch (err) {
+                alert("Failed to load practice questions.");
+            }
+        }
+
+        function handlePracticeOptionClick(qId, selectedText, correctText, isLearnMode) {
+            const card = document.getElementById(`practice-q-card-${qId}`);
+            const opts = card.querySelectorAll('.option-card');
+            
+            opts.forEach(opt => {
+                const optText = opt.querySelector('.flex-grow-1').innerText.trim();
+                if (optText === correctText.trim()) {
+                    opt.classList.add('correct-highlight');
+                } else if (optText === selectedText.trim() && optText !== correctText.trim()) {
+                    opt.classList.add('wrong-highlight');
+                }
+            });
+
+            const exp = document.getElementById(`practice-exp-${qId}`);
+            if (exp) exp.style.display = 'block';
+        }
+
+        // ================= MCQ EXPLORER / SEARCH =================
+        function debounceSearch() {
+            clearTimeout(appState.searchTimer);
+            appState.searchTimer = setTimeout(performSearch, 300);
+        }
+
+        async function performSearch(page = 1) {
+            const query = document.getElementById('search-input').value.trim();
+            const subject = document.getElementById('search-subject-select').value;
+            const container = document.getElementById('search-results-list');
+            const countEl = document.getElementById('search-results-count');
+
+            container.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>';
+
+            try {
+                const res = await fetch(`/api/search?q=${encodeURIComponent(query)}&subject=${encodeURIComponent(subject)}&page=${page}`);
+                const data = await res.json();
+                
+                countEl.innerText = `Found ${data.total.toLocaleString()} questions (Page ${data.page} of ${Math.ceil(data.total / data.per_page) || 1})`;
+
+                if (data.questions.length === 0) {
+                    container.innerHTML = '<div class="text-center py-5 text-muted">No MCQs found matching your query.</div>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                data.questions.forEach((q) => {
+                    const isBookmarked = StorageManager.isBookmarked(q.id);
+                    container.innerHTML += `
+                        <div class="card p-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-secondary-subtle text-secondary-emphasis">${q.subject}</span>
+                                <button class="btn btn-sm btn-light border" onclick="toggleSearchBookmark(${q.id}, this)">
+                                    <i class="${isBookmarked ? 'fa-solid text-warning' : 'fa-regular'} fa-bookmark"></i>
+                                </button>
+                            </div>
+
+                            <h6 class="fw-bold mb-2">Q. ${q.question}</h6>
+
+                            <div class="row g-2 mb-2">
+                                ${q.options.map(opt => `
+                                    <div class="col-sm-6">
+                                        <div class="small p-2 border rounded ${opt.is_correct ? 'bg-success-subtle text-success-emphasis fw-bold' : ''}">
+                                            <strong>(${opt.letter})</strong> ${opt.text}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top small">
+                                <span class="text-success fw-bold"><i class="fa-solid fa-check me-1"></i> Answer: [${q.correct_letter}] ${q.correct_answer}</span>
+                                <button class="btn btn-sm btn-link text-decoration-none p-0" onclick="toggleSearchExp(${q.id})">Toggle Explanation</button>
+                            </div>
+
+                            ${q.explanation ? `
+                                <div class="small p-2 bg-body-tertiary rounded text-muted mt-2" id="search-exp-${q.id}" style="display: none;">
+                                    <strong>Explanation:</strong> ${q.explanation}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+
+                renderSearchPagination(data.total, data.page, data.per_page);
+
+            } catch (err) {
+                console.error("Search failed", err);
+            }
+        }
+
+        function toggleSearchExp(qId) {
+            const exp = document.getElementById(`search-exp-${qId}`);
+            if (exp) exp.style.display = exp.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function renderSearchPagination(total, currentPage, perPage) {
+            const totalPages = Math.ceil(total / perPage);
+            const pag = document.getElementById('search-pagination');
+            pag.innerHTML = '';
+            if (totalPages <= 1) return;
+
+            pag.innerHTML += `
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="performSearch(${currentPage - 1})">Prev</a>
+                </li>
+            `;
+
+            const start = Math.max(1, currentPage - 2);
+            const end = Math.min(totalPages, currentPage + 2);
+            for (let i = start; i <= end; i++) {
+                pag.innerHTML += `
+                    <li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="performSearch(${i})">${i}</a>
+                    </li>
+                `;
+            }
+
+            pag.innerHTML += `
+                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="performSearch(${currentPage + 1})">Next</a>
+                </li>
+            `;
+        }
+
+        // ================= TEST HISTORY & PROGRESS =================
+        function loadTestHistory() {
+            const history = StorageManager.getTestHistory();
+            const tbody = document.getElementById('history-table-body');
+            tbody.innerHTML = '';
+
+            if (history.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-4">No exam sessions logged yet.</td></tr>';
+                updateProgressChartData([]);
+                return;
+            }
+
+            updateProgressChartData(history);
+
+            history.forEach((h, idx) => {
+                const m = Math.floor(h.time_taken_seconds / 60);
+                const s = h.time_taken_seconds % 60;
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${idx + 1}</strong></td>
+                        <td>${h.test_type || 'PPSC Mock Exam'}</td>
+                        <td><span class="text-success fw-bold">${h.correct_count}</span></td>
+                        <td><span class="text-danger fw-bold">${h.incorrect_count} (-${h.negative_deduction})</span></td>
+                        <td><strong class="fs-6 ${h.passed ? 'text-success' : 'text-danger'}">${h.net_score}</strong></td>
+                        <td>
+                            <span class="badge ${h.passed ? 'bg-success' : 'bg-danger'}">
+                                ${h.passed ? 'PASSED (≥40)' : 'FAILED (<40)'}
+                            </span>
+                        </td>
+                        <td>${m}m ${s}s</td>
+                        <td><small class="text-muted">${new Date(h.created_at).toLocaleString()}</small></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" onclick="viewHistoryDetail(${idx})">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function clearTestHistory() {
+            if (confirm("Are you sure you want to clear your test score history?")) {
+                StorageManager.clearTestHistory();
+                loadTestHistory();
+                updateDashboardStats();
+            }
+        }
+
+        function viewHistoryDetail(index) {
+            const history = StorageManager.getTestHistory();
+            const data = history[index];
+            if (!data) return;
+
+            const resultObj = {
+                net_score: data.net_score,
+                raw_score: data.raw_score,
+                negative_deduction: data.negative_deduction,
+                correct_count: data.correct_count,
+                incorrect_count: data.incorrect_count,
+                unattempted_count: data.unattempted_count,
+                total_questions: data.total_questions,
+                percentage: data.percentage,
+                passed: Boolean(data.passed),
+                time_taken_seconds: data.time_taken_seconds,
+                subject_stats: (data.details && data.details.subject_stats) || {},
+                detailed_review: (data.details && data.details.detailed_review) || []
+            };
+            displayTestResults(resultObj);
+        }
+
+        let progressChartInstance = null;
+        function setupProgressChart() {
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            progressChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Net Score (Marks)',
+                        data: [],
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true,
+                        pointRadius: 4
+                    }, {
+                        label: 'PPSC Passing Threshold (40 Marks)',
+                        data: [],
+                        borderColor: '#10b981',
+                        borderDash: [5, 5],
+                        borderWidth: 2,
+                        fill: false,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 100,
+                            ticks: { callback: v => `${v}` }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateProgressChartData(history) {
+            if (!progressChartInstance) return;
+            const rev = [...history].reverse();
+            progressChartInstance.data.labels = rev.map((h, i) => `Exam ${i + 1}`);
+            progressChartInstance.data.datasets[0].data = rev.map(h => h.net_score);
+            progressChartInstance.data.datasets[1].data = rev.map(() => 40.0);
+            progressChartInstance.update();
+        }
+
+        // ================= BOOKMARKS =================
+        function loadBookmarksList() {
+            const bookmarks = StorageManager.getBookmarks();
+            const container = document.getElementById('bookmarks-list');
+            const badge = document.getElementById('bookmarks-count-badge');
+            if (badge) badge.innerText = `${bookmarks.length} Saved`;
+
+            if (bookmarks.length === 0) {
+                container.innerHTML = '<div class="card p-5 text-center text-muted">No bookmarked questions yet. Click the bookmark icon on any question to save it here.</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            bookmarks.forEach((q, idx) => {
+                container.innerHTML += `
+                    <div class="card p-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-secondary-subtle text-secondary-emphasis">${q.subject}</span>
+                            <button class="btn btn-sm btn-outline-danger" onclick="removeBookmarkItem(${q.id})">
+                                <i class="fa-solid fa-trash me-1"></i> Remove
+                            </button>
+                        </div>
+                        <h6 class="fw-bold mb-2">Q${idx + 1}. ${q.question}</h6>
+
+                        <div class="p-2 rounded bg-success-subtle text-success-emphasis small mb-2">
+                            <strong>Correct Answer:</strong> [${q.correct_letter}] ${q.correct_answer}
+                        </div>
+                        ${q.explanation ? `<div class="small text-muted bg-body-tertiary p-2 rounded"><strong>Note:</strong> ${q.explanation}</div>` : ''}
+                    </div>
+                `;
+            });
+        }
+
+        async function toggleSearchBookmark(qId, btn) {
+            if (StorageManager.isBookmarked(qId)) {
+                StorageManager.removeBookmark(qId);
+                btn.querySelector('i').className = 'fa-regular fa-bookmark';
+            } else {
+                StorageManager.addBookmark({ id: qId, question: 'Bookmarked MCQ', correct_answer: 'Saved', correct_letter: 'A', subject: 'Literature' });
+                btn.querySelector('i').className = 'fa-solid text-warning fa-bookmark';
+            }
+        }
+
+        function removeBookmarkItem(qId) {
+            StorageManager.removeBookmark(qId);
+            loadBookmarksList();
+        }
+
+        function clearAllBookmarks() {
+            if (confirm("Are you sure you want to remove all saved bookmarks?")) {
+                StorageManager.clearAllBookmarks();
+                loadBookmarksList();
+            }
+        }
+
+        function escapeQuote(str) {
+            return (str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        }
+    </script>
+</body>
+</html>
