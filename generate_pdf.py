@@ -14,15 +14,15 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_JSON = os.path.join(BASE_DIR, "english_lecturer_mcqs.json")
 OUTPUT_PDF = os.path.join(BASE_DIR, "English_Lecturer_Past_Papers_Categorized.pdf")
 
-def clean_latin_text(text):
+def clean_pdf_text(text):
     if not text:
         return ""
-    cleaned = re.sub(r'[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]+', '', text)
-    cleaned = re.sub(r'<[^>]+>', ' ', cleaned)
-    cleaned = re.sub(r'&[a-zA-Z0-9#]+;', ' ', cleaned)
-    cleaned = re.sub(r'', "'", cleaned)
-    cleaned = re.sub(r'\s+', ' ', cleaned).strip()
-    return cleaned
+    t = str(text)
+    t = t.replace('\u2018', "'").replace('\u2019', "'").replace('\u201c', '"').replace('\u201d', '"')
+    t = t.replace('\ufffd', "'").replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+    t = re.sub(r'[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]+', '', t)
+    t = re.sub(r'\s+', ' ', t).strip()
+    return t
 
 class NumberedCanvas(canvas.Canvas):
     def __init__(self, *args, **kwargs):
@@ -48,6 +48,7 @@ class NumberedCanvas(canvas.Canvas):
             self.setFillColor(colors.HexColor("#4338CA"))
             # Header
             self.drawString(36, 755, "PPSC / FPSC / SPSC / KPPSC - ENGLISH LECTURER & SUBJECT SPECIALIST GUIDE")
+            self.drawRightString(576, 755, "Sourced from PakMCQs.com & Solved Past Papers")
             self.setStrokeColor(colors.HexColor("#CBD5E1"))
             self.setLineWidth(0.75)
             self.line(36, 748, 576, 748)
@@ -56,7 +57,7 @@ class NumberedCanvas(canvas.Canvas):
             self.line(36, 42, 576, 42)
             self.setFont("Helvetica", 8)
             self.setFillColor(colors.HexColor("#64748B"))
-            self.drawString(36, 30, "Self-Testing Format: Answers & Notes on Right Column | Passing: 40% (Negative Marking: -0.25)")
+            self.drawString(36, 30, "Self-Testing Format: Answers on Right | Passing: 40% (-0.25 Negative Marking)")
             page_text = f"Page {self._pageNumber} of {page_count}"
             self.drawRightString(576, 30, page_text)
             self.restoreState()
@@ -112,8 +113,8 @@ def build_pdf(json_file=DATA_JSON, output_pdf=OUTPUT_PDF):
         'DocTitle',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=21,
-        leading=25,
+        fontSize=20,
+        leading=24,
         textColor=colors.HexColor("#1E1B4B"),
         alignment=1
     )
@@ -122,18 +123,28 @@ def build_pdf(json_file=DATA_JSON, output_pdf=OUTPUT_PDF):
         'DocSubTitle',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=10.5,
+        fontSize=10,
         leading=14,
         textColor=colors.HexColor("#334155"),
         alignment=1
     )
     
+    shoutout_style = ParagraphStyle(
+        'ShoutoutText',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=9.5,
+        leading=13,
+        textColor=colors.HexColor("#065F46"),
+        alignment=1
+    )
+
     section_banner_style = ParagraphStyle(
         'SectionBanner',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=12,
-        leading=15,
+        fontSize=11.5,
+        leading=14.5,
         textColor=colors.white
     )
     
@@ -175,6 +186,16 @@ def build_pdf(json_file=DATA_JSON, output_pdf=OUTPUT_PDF):
         alignment=1
     )
     
+    contrib_style = ParagraphStyle(
+        'ContribText',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=7.5,
+        leading=9.5,
+        textColor=colors.HexColor("#64748B"),
+        alignment=1
+    )
+
     exp_style = ParagraphStyle(
         'ExpText',
         parent=styles['Normal'],
@@ -188,15 +209,31 @@ def build_pdf(json_file=DATA_JSON, output_pdf=OUTPUT_PDF):
     story = []
 
     # ================= COVER / TITLE SECTION =================
-    story.append(Spacer(1, 15))
+    story.append(Spacer(1, 10))
     story.append(Paragraph("<b>PPSC / FPSC / SPSC / KPPSC</b>", title_style))
-    story.append(Spacer(1, 4))
+    story.append(Spacer(1, 3))
     story.append(Paragraph("<b>ENGLISH LECTURER & SUBJECT SPECIALIST (BS-17)</b>", ParagraphStyle('Sub1', parent=title_style, fontSize=15, leading=19, textColor=colors.HexColor("#4F46E5"))))
-    story.append(Spacer(1, 4))
-    story.append(Paragraph("<b>MASTER SOLVED PAST PAPERS & CATEGORIZED QUESTION BANK</b>", ParagraphStyle('Sub2', parent=title_style, fontSize=12, leading=16, textColor=colors.HexColor("#0284C7"))))
-    story.append(Spacer(1, 6))
-    story.append(Paragraph("Categorized Self-Study Guide (Zero-Spoiler Format: Questions on Left, Verified Answers on Right)", subtitle_style))
-    story.append(Spacer(1, 12))
+    story.append(Spacer(1, 3))
+    story.append(Paragraph("<b>MASTER SOLVED PAST PAPERS & CATEGORIZED QUESTION BANK</b>", ParagraphStyle('Sub2', parent=title_style, fontSize=11.5, leading=15, textColor=colors.HexColor("#0284C7"))))
+    story.append(Spacer(1, 5))
+    story.append(Paragraph("Categorized Self-Study Guide (Zero-Spoiler Format: Questions on Left, Answers & Contributors on Right)", subtitle_style))
+    story.append(Spacer(1, 8))
+
+    # Shoutout Banner for PakMCQs and Contributors
+    shoutout_data = [[
+        Paragraph("<b>Special Acknowledgement & Shoutout:</b> Core MCQs and community contributions graciously sourced from <b>PakMCQs (pakmcqs.com)</b>, along with verified solved past papers compiled by Kashif Ali (Success Times Academy) and PPSC/SPSC Examination Boards.", shoutout_style)
+    ]]
+    shoutout_table = Table(shoutout_data, colWidths=[540])
+    shoutout_table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#ECFDF5")),
+        ('BOX', (0,0), (-1,-1), 1, colors.HexColor("#A7F3D0")),
+        ('TOPPADDING', (0,0), (-1,-1), 6),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+        ('LEFTPADDING', (0,0), (-1,-1), 12),
+        ('RIGHTPADDING', (0,0), (-1,-1), 12),
+    ]))
+    story.append(shoutout_table)
+    story.append(Spacer(1, 10))
 
     # PPSC Exam Specs Table
     spec_data = [
@@ -218,22 +255,22 @@ def build_pdf(json_file=DATA_JSON, output_pdf=OUTPUT_PDF):
         ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#F8FAFC")),
         ('BOX', (0,0), (-1,-1), 1, colors.HexColor("#CBD5E1")),
         ('INNERGRID', (0,0), (-1,-1), 0.5, colors.HexColor("#E2E8F0")),
-        ('TOPPADDING', (0,0), (-1,-1), 6),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+        ('TOPPADDING', (0,0), (-1,-1), 5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 5),
     ]))
     story.append(spec_table)
-    story.append(Spacer(1, 14))
+    story.append(Spacer(1, 10))
 
     # Summary Table of Subjects & Counts
-    story.append(Paragraph("<b>Table of Contents & Subject Distribution</b>", ParagraphStyle('H2', fontName='Helvetica-Bold', fontSize=11, textColor=colors.HexColor("#0F172A"))))
-    story.append(Spacer(1, 5))
+    story.append(Paragraph("<b>Table of Contents & Subject Distribution</b>", ParagraphStyle('H2', fontName='Helvetica-Bold', fontSize=10.5, textColor=colors.HexColor("#0F172A"))))
+    story.append(Spacer(1, 4))
     
     summary_rows = [
         [
-            Paragraph("<b>Sr.</b>", ParagraphStyle('TH1', fontName='Helvetica-Bold', fontSize=8.5, textColor=colors.white)),
-            Paragraph("<b>Topic / Subject Module</b>", ParagraphStyle('TH2', fontName='Helvetica-Bold', fontSize=8.5, textColor=colors.white)),
-            Paragraph("<b>MCQs Count</b>", ParagraphStyle('TH3', fontName='Helvetica-Bold', fontSize=8.5, alignment=1, textColor=colors.white)),
-            Paragraph("<b>PPSC Weightage</b>", ParagraphStyle('TH4', fontName='Helvetica-Bold', fontSize=8.5, alignment=1, textColor=colors.white))
+            Paragraph("<b>Sr.</b>", ParagraphStyle('TH1', fontName='Helvetica-Bold', fontSize=8, textColor=colors.white)),
+            Paragraph("<b>Topic / Subject Module</b>", ParagraphStyle('TH2', fontName='Helvetica-Bold', fontSize=8, textColor=colors.white)),
+            Paragraph("<b>MCQs Count</b>", ParagraphStyle('TH3', fontName='Helvetica-Bold', fontSize=8, alignment=1, textColor=colors.white)),
+            Paragraph("<b>PPSC Weightage</b>", ParagraphStyle('TH4', fontName='Helvetica-Bold', fontSize=8, alignment=1, textColor=colors.white))
         ]
     ]
     
@@ -252,23 +289,23 @@ def build_pdf(json_file=DATA_JSON, output_pdf=OUTPUT_PDF):
 
     for idx, (subj, s_mcqs) in enumerate(ordered_subjects, 1):
         summary_rows.append([
-            Paragraph(str(idx), ParagraphStyle('TD1', fontName='Helvetica', fontSize=8)),
-            Paragraph(f"<b>{subj}</b>", ParagraphStyle('TD2', fontName='Helvetica', fontSize=8, textColor=colors.HexColor("#1E293B"))),
-            Paragraph(f"<b>{len(s_mcqs)}</b>", ParagraphStyle('TD3', fontName='Helvetica-Bold', fontSize=8, alignment=1, textColor=colors.HexColor("#4F46E5"))),
-            Paragraph(weight_map.get(subj, "10%"), ParagraphStyle('TD4', fontName='Helvetica', fontSize=8, alignment=1, textColor=colors.HexColor("#475569")))
+            Paragraph(str(idx), ParagraphStyle('TD1', fontName='Helvetica', fontSize=7.5)),
+            Paragraph(f"<b>{subj}</b>", ParagraphStyle('TD2', fontName='Helvetica', fontSize=7.5, textColor=colors.HexColor("#1E293B"))),
+            Paragraph(f"<b>{len(s_mcqs)}</b>", ParagraphStyle('TD3', fontName='Helvetica-Bold', fontSize=7.5, alignment=1, textColor=colors.HexColor("#4F46E5"))),
+            Paragraph(weight_map.get(subj, "10%"), ParagraphStyle('TD4', fontName='Helvetica', fontSize=7.5, alignment=1, textColor=colors.HexColor("#475569")))
         ])
         
-    summary_table = Table(summary_rows, colWidths=[35, 275, 110, 120])
+    summary_table = Table(summary_rows, colWidths=[30, 280, 110, 120])
     summary_table.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#312E81")),
         ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E1")),
         ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F8FAFC")]),
-        ('TOPPADDING', (0,0), (-1,-1), 4),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+        ('TOPPADDING', (0,0), (-1,-1), 3.5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 3.5),
     ]))
     story.append(summary_table)
-    story.append(Spacer(1, 12))
-    story.append(Paragraph("<i><b>Self-Study Tip:</b> Cover the right-hand column while self-testing. All verified answers and notes are placed exclusively in the right column to prevent cheating.</i>", ParagraphStyle('Note', fontName='Helvetica-Oblique', fontSize=8.5, textColor=colors.HexColor("#4338CA"), alignment=1)))
+    story.append(Spacer(1, 10))
+    story.append(Paragraph("<i><b>Self-Study Tip:</b> Cover the right-hand column while self-testing. All verified answers, contributor credits, and notes are placed exclusively in the right column to prevent cheating.</i>", ParagraphStyle('Note', fontName='Helvetica-Oblique', fontSize=8, textColor=colors.HexColor("#4338CA"), alignment=1)))
     story.append(PageBreak())
 
     # ================= SUBJECT-WISE SECTIONS =================
@@ -299,20 +336,21 @@ def build_pdf(json_file=DATA_JSON, output_pdf=OUTPUT_PDF):
         )
         banner_table.setStyle(TableStyle([
             ('BACKGROUND', (0,0), (-1,-1), b_color),
-            ('TOPPADDING', (0,0), (-1,-1), 6),
-            ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+            ('TOPPADDING', (0,0), (-1,-1), 5),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 5),
             ('LEFTPADDING', (0,0), (-1,-1), 10),
         ]))
         story.append(banner_table)
-        story.append(Spacer(1, 7))
+        story.append(Spacer(1, 6))
 
         for q in s_mcqs:
-            q_text = clean_latin_text(q.get("question", ""))
+            q_text = clean_pdf_text(q.get("question", ""))
             options = q.get("options", [])
-            corr_ans = clean_latin_text(q.get("correct_answer", ""))
+            corr_ans = clean_pdf_text(q.get("correct_answer", ""))
             corr_let = q.get("correct_letter", "").strip()
-            raw_exp = clean_latin_text(q.get("explanation", ""))
-            src_paper = q.get("source_paper", "")
+            raw_exp = clean_pdf_text(q.get("explanation", ""))
+            submitted_by = clean_pdf_text(q.get("submitted_by", ""))
+            src_paper = clean_pdf_text(q.get("source_paper", ""))
             
             # 1. LEFT COLUMN: Question + Options
             q_elements = []
@@ -322,7 +360,7 @@ def build_pdf(json_file=DATA_JSON, output_pdf=OUTPUT_PDF):
                 opt_texts = []
                 for opt in options:
                     let = opt.get("letter", "")
-                    otxt = clean_latin_text(opt.get("text", "")) or opt.get("text", "")
+                    otxt = clean_pdf_text(opt.get("text", ""))
                     opt_texts.append(f"<b>({let})</b> {otxt}")
                 
                 if len(opt_texts) == 4:
@@ -343,7 +381,7 @@ def build_pdf(json_file=DATA_JSON, output_pdf=OUTPUT_PDF):
                     for ot in opt_texts:
                         q_elements.append(Paragraph(ot, opt_style))
 
-            # 2. RIGHT COLUMN: Answer Badge + Answer Text + Explanation Note
+            # 2. RIGHT COLUMN: Answer Badge + Answer Text + Contributor + Explanation Note
             ans_elements = []
             if corr_let:
                 ans_elements.append(Paragraph(f"<b>[{corr_let}]</b>", ans_badge_style))
@@ -352,13 +390,17 @@ def build_pdf(json_file=DATA_JSON, output_pdf=OUTPUT_PDF):
             else:
                 ans_elements.append(Paragraph("<b>Answered</b>", ans_text_style))
                 
+            if submitted_by and "PakMCQs" not in submitted_by:
+                ans_elements.append(Spacer(1, 1.5))
+                ans_elements.append(Paragraph(f"<i>Submitted by: {submitted_by}</i>", contrib_style))
+            elif src_paper and "PPSC" in src_paper or "SPSC" in src_paper:
+                ans_elements.append(Spacer(1, 1.5))
+                ans_elements.append(Paragraph(f"<i>Source: {src_paper}</i>", contrib_style))
+
             if raw_exp and len(raw_exp) > 4:
                 exp_snippet = raw_exp[:180] + ("..." if len(raw_exp) > 180 else "")
                 ans_elements.append(Spacer(1, 2))
                 ans_elements.append(Paragraph(f"<b>Note:</b> {exp_snippet}", exp_style))
-            elif src_paper and "PPSC" in src_paper or "SPSC" in src_paper:
-                ans_elements.append(Spacer(1, 2))
-                ans_elements.append(Paragraph(f"<i>{src_paper}</i>", exp_style))
 
             row_table = Table(
                 [[q_elements, ans_elements]],
@@ -370,20 +412,20 @@ def build_pdf(json_file=DATA_JSON, output_pdf=OUTPUT_PDF):
                 ('BOX', (0,0), (-1,-1), 0.5, colors.HexColor("#E2E8F0")),
                 ('LINEBEFORE', (1,0), (1,0), 0.75, colors.HexColor("#86EFAC")),
                 ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-                ('TOPPADDING', (0,0), (-1,-1), 5),
-                ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+                ('TOPPADDING', (0,0), (-1,-1), 4.5),
+                ('BOTTOMPADDING', (0,0), (-1,-1), 4.5),
                 ('LEFTPADDING', (0,0), (0,0), 6),
                 ('RIGHTPADDING', (0,0), (0,0), 6),
                 ('LEFTPADDING', (1,0), (1,0), 6),
                 ('RIGHTPADDING', (1,0), (1,0), 6),
             ]))
 
-            story.append(KeepTogether([row_table, Spacer(1, 3)]))
+            story.append(KeepTogether([row_table, Spacer(1, 2.5)]))
             global_q_num += 1
 
-        story.append(Spacer(1, 10))
+        story.append(Spacer(1, 8))
 
-    print("[*] Rebuilding English Lecturer PDF with right-column answers...")
+    print("[*] Rebuilding English Lecturer PDF with clean text and contributor attribution...")
     doc.build(story, canvasmaker=NumberedCanvas)
     print(f"[+] Successfully generated PDF: {output_pdf}")
     print(f"[+] Total questions formatted: {global_q_num - 1}")

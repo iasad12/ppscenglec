@@ -84,7 +84,7 @@ def api_mock_test():
     
     for subject, count in distribution:
         c.execute("""
-            SELECT id, question, options_json, correct_answer, correct_letter, explanation, subject, source_paper
+            SELECT id, question, options_json, correct_answer, correct_letter, explanation, submitted_by, subject, source_paper
             FROM questions
             WHERE subject = ?
             ORDER BY RANDOM()
@@ -99,6 +99,7 @@ def api_mock_test():
                 "correct_answer": r["correct_answer"],
                 "correct_letter": r["correct_letter"],
                 "explanation": r["explanation"],
+                "submitted_by": r["submitted_by"],
                 "subject": r["subject"],
                 "source_paper": r["source_paper"]
             })
@@ -149,14 +150,14 @@ def api_practice():
     
     if subject == "all":
         c.execute("""
-            SELECT id, question, options_json, correct_answer, correct_letter, explanation, subject, source_paper
+            SELECT id, question, options_json, correct_answer, correct_letter, explanation, submitted_by, subject, source_paper
             FROM questions
             ORDER BY RANDOM()
             LIMIT ?
         """, (limit,))
     else:
         c.execute("""
-            SELECT id, question, options_json, correct_answer, correct_letter, explanation, subject, source_paper
+            SELECT id, question, options_json, correct_answer, correct_letter, explanation, submitted_by, subject, source_paper
             FROM questions
             WHERE subject = ?
             ORDER BY RANDOM()
@@ -173,6 +174,7 @@ def api_practice():
             "correct_answer": r["correct_answer"],
             "correct_letter": r["correct_letter"],
             "explanation": r["explanation"],
+            "submitted_by": r["submitted_by"],
             "subject": r["subject"],
             "source_paper": r["source_paper"]
         })
@@ -195,7 +197,7 @@ def api_search():
     conn = get_db()
     c = conn.cursor()
     
-    sql = "SELECT id, question, options_json, correct_answer, correct_letter, explanation, subject, source_paper FROM questions WHERE 1=1"
+    sql = "SELECT id, question, options_json, correct_answer, correct_letter, explanation, submitted_by, subject, source_paper FROM questions WHERE 1=1"
     params = []
     
     if query:
@@ -223,6 +225,7 @@ def api_search():
             "correct_answer": r["correct_answer"],
             "correct_letter": r["correct_letter"],
             "explanation": r["explanation"],
+            "submitted_by": r["submitted_by"],
             "subject": r["subject"],
             "source_paper": r["source_paper"]
         })

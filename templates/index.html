@@ -1475,8 +1475,11 @@
                     list.innerHTML += `
                         <div class="card p-3 mb-3" id="practice-q-card-${q.id}">
                             <div class="d-flex justify-content-between align-items-start mb-2">
-                                <span class="badge bg-primary-subtle text-primary fw-bold">Q ${idx + 1}</span>
-                                <span class="badge bg-secondary-subtle text-secondary-emphasis">${q.subject}</span>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge bg-primary-subtle text-primary fw-bold">Q ${idx + 1}</span>
+                                    <span class="badge bg-secondary-subtle text-secondary-emphasis">${q.subject}</span>
+                                </div>
+                                <span class="small text-muted"><i class="fa-solid fa-user-pen me-1 text-primary"></i> ${q.submitted_by || 'PakMCQs Contributor'}</span>
                             </div>
 
                             <h5 class="fw-bold mb-2">${q.question}</h5>
@@ -1491,8 +1494,11 @@
                             </div>
 
                             <div class="practice-exp mt-3 p-3 bg-body-tertiary rounded border" id="practice-exp-${q.id}" style="display: none;">
-                                <div class="fw-bold text-success mb-1"><i class="fa-solid fa-circle-check me-1"></i> Correct Answer: [${q.correct_letter}] ${q.correct_answer}</div>
-                                ${q.explanation ? `<div class="small text-muted">${q.explanation}</div>` : ''}
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <div class="fw-bold text-success"><i class="fa-solid fa-circle-check me-1"></i> Correct Answer: [${q.correct_letter}] ${q.correct_answer}</div>
+                                    <small class="text-muted">Source: PakMCQs</small>
+                                </div>
+                                ${q.explanation ? `<div class="small text-muted mt-1">${q.explanation}</div>` : ''}
                             </div>
                         </div>
                     `;
