@@ -414,12 +414,16 @@ def build_pdf(json_file=DATA_JSON, output_pdf=OUTPUT_PDF):
             else:
                 ans_elements.append(Paragraph("<b>Answered</b>", ans_text_style))
                 
-            if submitted_by and "PakMCQs" not in submitted_by:
-                ans_elements.append(Spacer(1, 1.5))
-                ans_elements.append(Paragraph(f"<i>Submitted by: {submitted_by}</i>", contrib_style))
-            elif src_paper and "PPSC" in src_paper or "SPSC" in src_paper:
-                ans_elements.append(Spacer(1, 1.5))
-                ans_elements.append(Paragraph(f"<i>Source: {src_paper}</i>", contrib_style))
+            # Always render contributor / submission credit
+            if src_paper and ("PPSC" in src_paper or "SPSC" in src_paper or "KPPSC" in src_paper):
+                contrib_label = f"Source: {src_paper}"
+            elif submitted_by:
+                contrib_label = f"Submitted by: {submitted_by}"
+            else:
+                contrib_label = "Submitted by: PakMCQs Contributor"
+
+            ans_elements.append(Spacer(1, 1.5))
+            ans_elements.append(Paragraph(f"<i>{contrib_label}</i>", contrib_style))
 
             if raw_exp and len(raw_exp) > 4:
                 exp_snippet = raw_exp[:180] + ("..." if len(raw_exp) > 180 else "")
