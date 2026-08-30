@@ -56,8 +56,8 @@ class NumberedCanvas(canvas.Canvas):
             # Footer
             self.line(36, 42, 576, 42)
             self.setFont("Helvetica", 8)
-            self.setFillColor(colors.HexColor("#64748B"))
-            self.drawString(36, 30, "Self-Testing Format: Answers on Right | Passing: 40% (-0.25 Negative Marking)")
+            self.setFillColor(colors.HexColor("#475569"))
+            self.drawString(36, 30, "Curated by Asad Imran (asadimran.pages.dev) | Sourced from PakMCQs.com | Passing: 40% (-0.25 Neg.)")
             page_text = f"Page {self._pageNumber} of {page_count}"
             self.drawRightString(576, 30, page_text)
             self.restoreState()
@@ -221,14 +221,14 @@ def build_pdf(json_file=DATA_JSON, output_pdf=OUTPUT_PDF):
     story = []
 
     # ================= COVER / TITLE SECTION =================
-    story.append(Spacer(1, 10))
+    story.append(Spacer(1, 8))
     story.append(Paragraph("<b>PPSC / FPSC / SPSC / KPPSC</b>", title_style))
     story.append(Spacer(1, 3))
     story.append(Paragraph("<b>ENGLISH LECTURER & SUBJECT SPECIALIST (BS-17)</b>", ParagraphStyle('Sub1', parent=title_style, fontSize=15, leading=19, textColor=colors.HexColor("#4F46E5"))))
     story.append(Spacer(1, 3))
     story.append(Paragraph("<b>MASTER SOLVED PAST PAPERS & CATEGORIZED QUESTION BANK</b>", ParagraphStyle('Sub2', parent=title_style, fontSize=11.5, leading=15, textColor=colors.HexColor("#0284C7"))))
-    story.append(Spacer(1, 5))
-    story.append(Paragraph("Categorized Self-Study Guide (Zero-Spoiler Format: Questions on Left, Answers & Contributors on Right)", subtitle_style))
+    story.append(Spacer(1, 4))
+    story.append(Paragraph("Curated & Compiled by <b><a href='https://asadimran.pages.dev/' color='#4338CA'><u>Asad Imran</u> (asadimran.pages.dev)</a></b> | Zero-Spoiler Two-Column Format", subtitle_style))
     story.append(Spacer(1, 8))
 
     # Shoutout Banner for PakMCQs and Contributors
