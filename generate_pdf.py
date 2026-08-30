@@ -78,16 +78,28 @@ def build_pdf(json_file=DATA_JSON, output_pdf=OUTPUT_PDF):
         subjects.setdefault(subj, []).append(item)
 
     subject_order = [
-        "Classical & Romantic Poetry",
-        "Drama & Theatre",
-        "Novels, Fiction & Prose",
-        "Modern & Post-Modern Poetry",
-        "Linguistics & Phonetics",
-        "Literary Theory & Criticism",
-        "American & World Literature",
-        "History of English Literature",
-        "Grammar, Vocabulary & Figures of Speech",
-        "General Knowledge & Pakistan Studies"
+        "Famous Playwright, Poet and Others",
+        "Ages, Era, Period",
+        "Literary Theory and Criticism",
+        "Language and Linguistics",
+        "American Literature",
+        "Medieval Literature and Culture",
+        "Cultural & Literary English Renaissance",
+        "Cultural & Literary 18th-19th Centuries",
+        "Cultural & Literary in Modernity",
+        "English Romantic Poetry",
+        "Modern Poetry and Poetics",
+        "The Gothic Novel",
+        "The Victorian Novel",
+        "Restoration & 18th-Century Drama",
+        "Introduction to Literary Studies",
+        "Introduction to Literary Theory",
+        "Miscellaneous Literature MCQs",
+        "English Grammar & Vocabulary",
+        "Pakistan Current Affairs & GK",
+        "Islamic Studies",
+        "Everyday Science & Math",
+        "PPSC / SPSC Solved Past Papers (2011-2024)"
     ]
     
     ordered_subjects = []
@@ -312,16 +324,28 @@ def build_pdf(json_file=DATA_JSON, output_pdf=OUTPUT_PDF):
     global_q_num = 1
     
     subject_colors = {
-        "Classical & Romantic Poetry": "#4F46E5",
-        "Drama & Theatre": "#7C3AED",
-        "Novels, Fiction & Prose": "#0D9488",
-        "Modern & Post-Modern Poetry": "#2563EB",
-        "Linguistics & Phonetics": "#0284C7",
-        "Literary Theory & Criticism": "#9333EA",
-        "American & World Literature": "#D97706",
-        "History of English Literature": "#475569",
-        "Grammar, Vocabulary & Figures of Speech": "#059669",
-        "General Knowledge & Pakistan Studies": "#16A34A"
+        "Famous Playwright, Poet and Others": "#4F46E5",
+        "Ages, Era, Period": "#7C3AED",
+        "Literary Theory and Criticism": "#9333EA",
+        "Language and Linguistics": "#0284C7",
+        "American Literature": "#D97706",
+        "Medieval Literature and Culture": "#475569",
+        "Cultural & Literary English Renaissance": "#2563EB",
+        "Cultural & Literary 18th-19th Centuries": "#0D9488",
+        "Cultural & Literary in Modernity": "#3B82F6",
+        "English Romantic Poetry": "#E11D48",
+        "Modern Poetry and Poetics": "#8B5CF6",
+        "The Gothic Novel": "#334155",
+        "The Victorian Novel": "#059669",
+        "Restoration & 18th-Century Drama": "#B45309",
+        "Introduction to Literary Studies": "#6366F1",
+        "Introduction to Literary Theory": "#A855F7",
+        "Miscellaneous Literature MCQs": "#64748B",
+        "English Grammar & Vocabulary": "#10B981",
+        "Pakistan Current Affairs & GK": "#16A34A",
+        "Islamic Studies": "#047857",
+        "Everyday Science & Math": "#0284C7",
+        "PPSC / SPSC Solved Past Papers (2011-2024)": "#DC2626"
     }
 
     LEFT_WIDTH = 360

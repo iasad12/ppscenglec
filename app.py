@@ -66,18 +66,25 @@ def api_mock_test():
     conn = get_db()
     c = conn.cursor()
     
-    # Official PPSC Lecturer English Blueprint Distribution (100 MCQs)
+    # Official PPSC Lecturer English Blueprint Distribution across exact PakMCQs categories (100 MCQs)
     distribution = [
-        ("Classical & Romantic Poetry", 18),
-        ("Drama & Theatre", 18),
-        ("Novels, Fiction & Prose", 16),
-        ("Modern & Post-Modern Poetry", 10),
-        ("Linguistics & Phonetics", 10),
-        ("Literary Theory & Criticism", 8),
-        ("American & World Literature", 5),
-        ("History of English Literature", 5),
-        ("Grammar, Vocabulary & Figures of Speech", 5),
-        ("General Knowledge & Pakistan Studies", 5)
+        ("Famous Playwright, Poet and Others", 24),
+        ("Ages, Era, Period", 12),
+        ("Literary Theory and Criticism", 8),
+        ("Language and Linguistics", 8),
+        ("American Literature", 6),
+        ("Medieval Literature and Culture", 5),
+        ("English Romantic Poetry", 4),
+        ("Modern Poetry and Poetics", 4),
+        ("The Gothic Novel", 3),
+        ("Cultural & Literary English Renaissance", 3),
+        ("Cultural & Literary 18th-19th Centuries", 3),
+        ("PPSC / SPSC Solved Past Papers (2011-2024)", 5),
+        ("Miscellaneous Literature MCQs", 5),
+        ("English Grammar & Vocabulary", 5),
+        ("Pakistan Current Affairs & GK", 4),
+        ("Islamic Studies", 3),
+        ("Everyday Science & Math", 3)
     ]
     
     selected_questions = []
