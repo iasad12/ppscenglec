@@ -66,10 +66,10 @@ def api_mock_test():
     conn = get_db()
     c = conn.cursor()
     
-    # Official PPSC Lecturer English Blueprint Distribution across exact PakMCQs categories (100 MCQs)
+    # Official PPSC Lecturer English Blueprint Distribution across exact PakMCQs categories (100 MCQs: 80 English + 20 GK)
     distribution = [
-        ("Famous Playwright, Poet and Others", 24),
-        ("Ages, Era, Period", 12),
+        ("Famous Playwright, Poet and Others", 22),
+        ("Ages, Era, Period", 10),
         ("Literary Theory and Criticism", 8),
         ("Language and Linguistics", 8),
         ("American Literature", 6),
@@ -79,7 +79,7 @@ def api_mock_test():
         ("The Gothic Novel", 3),
         ("Cultural & Literary English Renaissance", 3),
         ("Cultural & Literary 18th-19th Centuries", 3),
-        ("PPSC / SPSC Solved Past Papers (2011-2024)", 5),
+        ("PPSC / SPSC Solved Past Papers (2011-2024)", 4),
         ("Miscellaneous Literature MCQs", 5),
         ("English Grammar & Vocabulary", 5),
         ("Pakistan Current Affairs & GK", 4),
@@ -117,7 +117,7 @@ def api_mock_test():
         existing_ids = tuple(q["id"] for q in selected_questions) or (-1,)
         placeholders = ",".join("?" * len(existing_ids))
         c.execute(f"""
-            SELECT id, question, options_json, correct_answer, correct_letter, explanation, subject, source_paper
+            SELECT id, question, options_json, correct_answer, correct_letter, explanation, submitted_by, subject, source_paper
             FROM questions
             WHERE id NOT IN ({placeholders})
             ORDER BY RANDOM()
@@ -131,11 +131,13 @@ def api_mock_test():
                 "correct_answer": r["correct_answer"],
                 "correct_letter": r["correct_letter"],
                 "explanation": r["explanation"],
+                "submitted_by": r["submitted_by"],
                 "subject": r["subject"],
                 "source_paper": r["source_paper"]
             })
             
     random.shuffle(selected_questions)
+    selected_questions = selected_questions[:100]
     conn.close()
     
     return jsonify({
