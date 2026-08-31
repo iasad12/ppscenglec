@@ -3,7 +3,7 @@ import re
 import json
 import sqlite3
 import random
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file, send_from_directory, make_response
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "english_lecturer.db")
@@ -19,6 +19,17 @@ def get_db():
 @app.route("/")
 def index():
     return render_template("index.html")
+
+@app.route("/sw.js")
+def service_worker():
+    response = make_response(send_from_directory(os.path.join(BASE_DIR, "static"), "sw.js"))
+    response.headers["Content-Type"] = "application/javascript"
+    response.headers["Service-Worker-Allowed"] = "/"
+    return response
+
+@app.route("/manifest.json")
+def manifest():
+    return send_from_directory(os.path.join(BASE_DIR, "static"), "manifest.json")
 
 @app.route("/download-pdf")
 def download_pdf():

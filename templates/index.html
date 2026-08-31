@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PPSC / FPSC English Lecturer & Subject Specialist Exam Prep Portal</title>
+    
+    <!-- PWA & Mobile Web App Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="PPSC Prep">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+    <link rel="icon" type="image/png" href="/static/icons/icon-192.png">
+
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
@@ -1056,6 +1067,10 @@
                     <div class="stat-icon-box bg-warning-subtle text-warning" style="width:36px;height:36px;font-size:1rem;"><i class="fa-solid fa-bookmark"></i></div>
                     <div><div class="fw-bold">Saved Questions</div><small class="text-muted">Bookmarked MCQs collection</small></div>
                 </a>
+                <a href="#" class="list-group-item list-group-item-action d-flex align-items-center gap-3 p-3 rounded border" id="pwaInstallBtn" onclick="triggerPWAInstall(); bootstrap.Offcanvas.getInstance(document.getElementById('mobileMoreMenu'))?.hide();">
+                    <div class="stat-icon-box bg-success-subtle text-success" style="width:36px;height:36px;font-size:1rem;"><i class="fa-solid fa-mobile-screen-button"></i></div>
+                    <div><div class="fw-bold">Install App</div><small class="text-muted">Add to home screen for native offline experience</small></div>
+                </a>
                 <a href="/download-pdf" class="list-group-item list-group-item-action d-flex align-items-center gap-3 p-3 rounded border">
                     <div class="stat-icon-box bg-danger-subtle text-danger" style="width:36px;height:36px;font-size:1rem;"><i class="fa-solid fa-file-pdf"></i></div>
                     <div><div class="fw-bold">Download Master PDF Guide</div><small class="text-muted">4,362 MCQs with right-column answers</small></div>
@@ -1257,6 +1272,36 @@
             practiceMode: 'learn',
             searchTimer: null
         };
+
+        // ================= PWA INSTALLATION & SERVICE WORKER =================
+        let deferredPwaPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPwaPrompt = e;
+            const pwaBtn = document.getElementById('pwaInstallBtn');
+            if (pwaBtn) pwaBtn.style.display = 'flex';
+        });
+
+        async function triggerPWAInstall() {
+            if (deferredPwaPrompt) {
+                deferredPwaPrompt.prompt();
+                const { outcome } = await deferredPwaPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('User accepted PWA installation');
+                }
+                deferredPwaPrompt = null;
+            } else {
+                alert("To Install on Mobile:\n1. Tap your browser menu (⋮ or Share icon ⎙)\n2. Select 'Add to Home screen' or 'Install app'\n\nThis will install the portal as a native app!");
+            }
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('PWA Service Worker registered with scope:', reg.scope))
+                    .catch(err => console.warn('PWA Service Worker registration skipped:', err));
+            });
+        }
 
         document.addEventListener('DOMContentLoaded', async () => {
             await loadSubjects();
