@@ -1,8 +1,10 @@
-// PPSC Preparation Portal - Service Worker
-const CACHE_NAME = 'ppsc-prep-v1';
+// PPSC Preparation Portal - Service Worker (Full Offline Suite)
+const CACHE_NAME = 'ppsc-prep-v2';
 const STATIC_ASSETS = [
   '/',
+  '/manifest.json',
   '/static/manifest.json',
+  '/static/data/questions.json',
   '/static/icons/icon-192.png',
   '/static/icons/icon-512.png',
   '/static/icons/icon-maskable.png',
@@ -33,17 +35,14 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
-
-  // Skip non-GET and API database dynamic queries for live freshness
-  if (event.request.method !== 'GET' || url.pathname.startsWith('/api/')) {
+  if (event.request.method !== 'GET') {
     return;
   }
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
-        // Fetch in background to keep cache updated
+        // Return cache instantly, update in background if online
         fetch(event.request).then((networkResponse) => {
           if (networkResponse && networkResponse.status === 200) {
             caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse));
@@ -53,7 +52,7 @@ self.addEventListener('fetch', (event) => {
       }
 
       return fetch(event.request).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+        if (!networkResponse || networkResponse.status !== 200) {
           return networkResponse;
         }
         const responseToCache = networkResponse.clone();
@@ -62,7 +61,6 @@ self.addEventListener('fetch', (event) => {
         });
         return networkResponse;
       }).catch(() => {
-        // Offline fallback for navigation requests
         if (event.request.mode === 'navigate') {
           return caches.match('/');
         }

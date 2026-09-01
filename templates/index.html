@@ -1295,15 +1295,207 @@
             }
         }
 
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('PWA Service Worker registered with scope:', reg.scope))
-                    .catch(err => console.warn('PWA Service Worker registration skipped:', err));
-            });
-        }
+        // ================= CLIENT-SIDE OFFLINE DATASTORE ENGINE =================
+        const DataStore = {
+            questions: [],
+            subjects: [],
+            isReady: false,
+
+            async init() {
+                if (this.isReady && this.questions.length > 0) return true;
+
+                try {
+                    const res = await fetch('/static/data/questions.json');
+                    if (res.ok) {
+                        this.questions = await res.json();
+                        this._computeSubjects();
+                        this.isReady = true;
+                        console.log(`PWA Offline DataStore initialized with ${this.questions.length} MCQs`);
+                        return true;
+                    }
+                } catch (e) {
+                    console.warn('DataStore fetch failed, attempting cached response', e);
+                }
+                return false;
+            },
+
+            _computeSubjects() {
+                const counts = {};
+                this.questions.forEach(q => {
+                    counts[q.subject] = (counts[q.subject] || 0) + 1;
+                });
+                this.subjects = Object.keys(counts).map(s => ({
+                    subject: s,
+                    count: counts[s]
+                })).sort((a, b) => b.count - a.count);
+            },
+
+            getStats() {
+                return {
+                    total_questions: this.questions.length || 4362,
+                    subjects: this.subjects
+                };
+            },
+
+            getSubjects() {
+                if (!this.subjects || this.subjects.length === 0) {
+                    this._computeSubjects();
+                }
+                return this.subjects;
+            },
+
+            getMockExam() {
+                const distribution = [
+                    ["Famous Playwright, Poet and Others", 22],
+                    ["Ages, Era, Period", 10],
+                    ["Literary Theory and Criticism", 8],
+                    ["Language and Linguistics", 8],
+                    ["American Literature", 6],
+                    ["Medieval Literature and Culture", 5],
+                    ["English Romantic Poetry", 4],
+                    ["Modern Poetry and Poetics", 4],
+                    ["The Gothic Novel", 3],
+                    ["Cultural & Literary English Renaissance", 3],
+                    ["Cultural & Literary 18th-19th Centuries", 3],
+                    ["PPSC / SPSC Solved Past Papers (2011-2024)", 4],
+                    ["Miscellaneous Literature MCQs", 5],
+                    ["English Grammar & Vocabulary", 5],
+                    ["Pakistan Current Affairs & GK", 4],
+                    ["Islamic Studies", 3],
+                    ["Everyday Science & Math", 3]
+                ];
+
+                let selected = [];
+                const usedIds = new Set();
+
+                distribution.forEach(([subject, count]) => {
+                    const pool = this.questions.filter(q => q.subject === subject);
+                    const shuffled = [...pool].sort(() => 0.5 - Math.random());
+                    shuffled.slice(0, count).forEach(q => {
+                        if (!usedIds.has(q.id)) {
+                            usedIds.add(q.id);
+                            selected.push(q);
+                        }
+                    });
+                });
+
+                if (selected.length < 100) {
+                    const remainingPool = this.questions.filter(q => !usedIds.has(q.id)).sort(() => 0.5 - Math.random());
+                    for (let i = 0; i < remainingPool.length && selected.length < 100; i++) {
+                        selected.push(remainingPool[i]);
+                    }
+                }
+
+                return selected.sort(() => 0.5 - Math.random()).slice(0, 100);
+            },
+
+            getPractice(subject, limit) {
+                let pool = this.questions;
+                if (subject && subject !== 'all') {
+                    pool = pool.filter(q => q.subject === subject);
+                }
+                const shuffled = [...pool].sort(() => 0.5 - Math.random());
+                const n = (limit === 'all' || !limit) ? shuffled.length : parseInt(limit, 10);
+                return shuffled.slice(0, Math.min(n, shuffled.length));
+            },
+
+            search(query, subject, page = 1, perPage = 15) {
+                let pool = this.questions;
+                if (subject && subject !== 'all') {
+                    pool = pool.filter(q => q.subject === subject);
+                }
+                if (query && query.trim()) {
+                    const qLower = query.trim().toLowerCase();
+                    pool = pool.filter(q => {
+                        const inQ = q.question && q.question.toLowerCase().includes(qLower);
+                        const inAns = q.correct_answer && q.correct_answer.toLowerCase().includes(qLower);
+                        const inExp = q.explanation && q.explanation.toLowerCase().includes(qLower);
+                        const inOpts = q.options && q.options.some(o => o.text && o.text.toLowerCase().includes(qLower));
+                        return inQ || inAns || inExp || inOpts;
+                    });
+                }
+                const total = pool.length;
+                const totalPages = Math.ceil(total / perPage) || 1;
+                const start = (page - 1) * perPage;
+                const questions = pool.slice(start, start + perPage);
+                return {
+                    total,
+                    page,
+                    per_page: perPage,
+                    total_pages: totalPages,
+                    questions
+                };
+            },
+
+            evaluateTest(exam) {
+                const timeTaken = Math.round((Date.now() - exam.startTime) / 1000);
+                let correctCount = 0;
+                let incorrectCount = 0;
+                let unattemptedCount = 0;
+                const subjectStats = {};
+                const detailedReview = [];
+
+                exam.questions.forEach(q => {
+                    const userAns = exam.userAnswers[q.id];
+                    const isCorrect = userAns ? (userAns.trim() === q.correct_answer.trim()) : false;
+                    const isAttempted = Boolean(userAns);
+
+                    if (!subjectStats[q.subject]) {
+                        subjectStats[q.subject] = { total: 0, correct: 0, incorrect: 0, unattempted: 0 };
+                    }
+                    subjectStats[q.subject].total++;
+
+                    if (!isAttempted) {
+                        unattemptedCount++;
+                        subjectStats[q.subject].unattempted++;
+                    } else if (isCorrect) {
+                        correctCount++;
+                        subjectStats[q.subject].correct++;
+                    } else {
+                        incorrectCount++;
+                        subjectStats[q.subject].incorrect++;
+                    }
+
+                    detailedReview.push({
+                        id: q.id,
+                        question: q.question,
+                        subject: q.subject,
+                        user_answer: userAns || null,
+                        correct_answer: q.correct_answer,
+                        correct_letter: q.correct_letter,
+                        is_correct: isCorrect,
+                        is_attempted: isAttempted,
+                        explanation: q.explanation || ''
+                    });
+                });
+
+                const rawScore = correctCount * 1.0;
+                const negativeDeduction = Math.round(incorrectCount * 0.25 * 100) / 100;
+                const netScore = Math.max(0, Math.round((rawScore - negativeDeduction) * 100) / 100);
+                const passed = netScore >= (exam.total * 0.4);
+                const percentage = Math.round((netScore / exam.total) * 1000) / 10;
+
+                return {
+                    test_type: "PPSC English Lecturer Full Mock Exam",
+                    subject: "English Literature & GK",
+                    total_questions: exam.total,
+                    correct_count: correctCount,
+                    incorrect_count: incorrectCount,
+                    unattempted_count: unattemptedCount,
+                    raw_score: rawScore,
+                    negative_deduction: negativeDeduction,
+                    net_score: netScore,
+                    passed: passed,
+                    percentage: percentage,
+                    time_taken_seconds: timeTaken,
+                    subject_stats: subjectStats,
+                    detailed_review: detailedReview
+                };
+            }
+        };
 
         document.addEventListener('DOMContentLoaded', async () => {
+            await DataStore.init();
             await loadSubjects();
             await loadServerQuestionStats();
             updateDashboardStats();
@@ -1355,15 +1547,9 @@
         }
 
         async function loadServerQuestionStats() {
-            try {
-                const res = await fetch('/api/stats');
-                const data = await res.json();
-                if (data.total_questions) {
-                    document.getElementById('stat-total-q').innerText = data.total_questions.toLocaleString();
-                }
-            } catch (e) {
-                document.getElementById('stat-total-q').innerText = "4,362";
-            }
+            await DataStore.init();
+            const stats = DataStore.getStats();
+            document.getElementById('stat-total-q').innerText = (stats.total_questions || 4362).toLocaleString();
         }
 
         function updateDashboardStats() {
@@ -1447,107 +1633,89 @@
         }
 
         async function loadSubjects() {
-            try {
-                const res = await fetch('/api/subjects');
-                const subjects = await res.json();
-                appState.subjects = subjects;
+            await DataStore.init();
+            const subjects = DataStore.getSubjects();
+            appState.subjects = subjects;
 
-                const container = document.getElementById('subject-cards-container');
-                const practiceSelect = document.getElementById('practice-subject-select');
-                const searchSelect = document.getElementById('search-subject-select');
+            const container = document.getElementById('subject-cards-container');
+            const practiceSelect = document.getElementById('practice-subject-select');
+            const searchSelect = document.getElementById('search-subject-select');
 
-                container.innerHTML = '';
-                practiceSelect.innerHTML = '<option value="all">All Literature & GK (Mixed Practice)</option>';
-                searchSelect.innerHTML = '<option value="all">Filter by: All Topics</option>';
+            container.innerHTML = '';
+            practiceSelect.innerHTML = '<option value="all">All Literature & GK (Mixed Practice)</option>';
+            searchSelect.innerHTML = '<option value="all">Filter by: All Topics</option>';
 
-                const subjectIcons = {
-                    "Famous Playwright, Poet and Others": "fa-feather text-primary",
-                    "Ages, Era, Period": "fa-landmark text-secondary",
-                    "Literary Theory and Criticism": "fa-scale-balanced text-warning",
-                    "Language and Linguistics": "fa-language text-info",
-                    "American Literature": "fa-earth-americas text-danger",
-                    "Medieval Literature and Culture": "fa-shield-halved text-secondary",
-                    "Cultural & Literary English Renaissance": "fa-crown text-primary",
-                    "Cultural & Literary 18th-19th Centuries": "fa-scroll text-teal",
-                    "Cultural & Literary in Modernity": "fa-city text-primary",
-                    "English Romantic Poetry": "fa-heart text-danger",
-                    "Modern Poetry and Poetics": "fa-pen-fancy text-indigo",
-                    "The Gothic Novel": "fa-ghost text-dark",
-                    "The Victorian Novel": "fa-book-open-reader text-success",
-                    "Restoration & 18th-Century Drama": "fa-masks-theater text-warning",
-                    "Introduction to Literary Studies": "fa-glasses text-primary",
-                    "Introduction to Literary Theory": "fa-brain text-purple",
-                    "Miscellaneous Literature MCQs": "fa-shapes text-secondary",
-                    "English Grammar & Vocabulary": "fa-spell-check text-success",
-                    "Pakistan Current Affairs & GK": "fa-flag text-success",
-                    "Islamic Studies": "fa-mosque text-emerald",
-                    "Everyday Science & Math": "fa-atom text-info",
-                    "PPSC / SPSC Solved Past Papers (2011-2024)": "fa-award text-danger"
-                };
+            const subjectIcons = {
+                "Famous Playwright, Poet and Others": "fa-feather text-primary",
+                "Ages, Era, Period": "fa-landmark text-secondary",
+                "Literary Theory and Criticism": "fa-scale-balanced text-warning",
+                "Language and Linguistics": "fa-language text-info",
+                "American Literature": "fa-earth-americas text-danger",
+                "Medieval Literature and Culture": "fa-shield-halved text-secondary",
+                "Cultural & Literary English Renaissance": "fa-crown text-primary",
+                "Cultural & Literary 18th-19th Centuries": "fa-scroll text-teal",
+                "Cultural & Literary in Modernity": "fa-city text-primary",
+                "English Romantic Poetry": "fa-heart text-danger",
+                "Modern Poetry and Poetics": "fa-pen-fancy text-indigo",
+                "The Gothic Novel": "fa-ghost text-dark",
+                "The Victorian Novel": "fa-book-open-reader text-success",
+                "Restoration & 18th-Century Drama": "fa-masks-theater text-warning",
+                "Introduction to Literary Studies": "fa-glasses text-primary",
+                "Introduction to Literary Theory": "fa-brain text-purple",
+                "Miscellaneous Literature MCQs": "fa-shapes text-secondary",
+                "English Grammar & Vocabulary": "fa-spell-check text-success",
+                "Pakistan Current Affairs & GK": "fa-flag text-success",
+                "Islamic Studies": "fa-mosque text-emerald",
+                "Everyday Science & Math": "fa-atom text-info",
+                "PPSC / SPSC Solved Past Papers (2011-2024)": "fa-award text-danger"
+            };
 
-                subjects.forEach(s => {
-                    const icon = subjectIcons[s.subject] || "fa-book text-primary";
-                    container.innerHTML += `
-                        <div class="col-md-3 col-6">
-                            <div class="card card-hover p-2 p-md-3 h-100">
-                                <div class="d-flex align-items-start gap-2 mb-2">
-                                    <div class="stat-icon-box bg-body-tertiary flex-shrink-0" style="width:32px;height:32px;font-size:0.95rem;">
-                                        <i class="fa-solid ${icon}"></i>
-                                    </div>
-                                    <div class="overflow-hidden flex-grow-1">
-                                        <h6 class="fw-bold mb-0 subject-title-clamp" title="${s.subject}">${s.subject}</h6>
-                                        <small class="text-muted">${s.count} MCQs</small>
-                                    </div>
+            subjects.forEach(s => {
+                const icon = subjectIcons[s.subject] || "fa-book text-primary";
+                container.innerHTML += `
+                    <div class="col-md-3 col-6">
+                        <div class="card card-hover p-2 p-md-3 h-100">
+                            <div class="d-flex align-items-start gap-2 mb-2">
+                                <div class="stat-icon-box bg-body-tertiary flex-shrink-0" style="width:32px;height:32px;font-size:0.95rem;">
+                                    <i class="fa-solid ${icon}"></i>
                                 </div>
-                                <button class="btn btn-sm btn-outline-primary mt-auto fw-semibold w-100 py-1" onclick="startSubjectPractice('${s.subject}')">
-                                    <i class="fa-solid fa-play me-1"></i> Practice
-                                </button>
+                                <div class="overflow-hidden flex-grow-1">
+                                    <h6 class="fw-bold mb-0 subject-title-clamp" title="${s.subject}">${s.subject}</h6>
+                                    <small class="text-muted">${s.count} MCQs</small>
+                                </div>
                             </div>
+                            <button class="btn btn-sm btn-outline-primary mt-auto fw-semibold w-100 py-1" onclick="startSubjectPractice('${s.subject}')">
+                                <i class="fa-solid fa-play me-1"></i> Practice
+                            </button>
                         </div>
-                    `;
+                    </div>
+                `;
 
-                    practiceSelect.innerHTML += `<option value="${s.subject}">${s.subject} (${s.count} Qs)</option>`;
-                    searchSelect.innerHTML += `<option value="${s.subject}">${s.subject}</option>`;
-                });
-            } catch (err) {
-                console.error("Failed to load subjects", err);
-            }
+                practiceSelect.innerHTML += `<option value="${s.subject}">${s.subject} (${s.count} Qs)</option>`;
+                searchSelect.innerHTML += `<option value="${s.subject}">${s.subject}</option>`;
+            });
         }
 
         // ================= PPSC MOCK EXAM ENGINE =================
         async function startMockTest() {
             showTab('mock-active');
-            document.getElementById('display-q-text').innerText = "Loading 100 PPSC English Lecturer MCQs...";
-            document.getElementById('display-options-container').innerHTML = `
-                <div class="text-center py-5">
-                    <div class="spinner-border text-primary" role="status"></div>
-                    <p class="mt-2 text-muted fw-semibold">Generating authentic 100-question PPSC English Lecturer blueprint...</p>
-                </div>
-            `;
+            await DataStore.init();
+            const questions = DataStore.getMockExam();
+            
+            appState.currentExam = {
+                questions: questions,
+                total: questions.length,
+                durationMinutes: 90,
+                secondsRemaining: 90 * 60,
+                userAnswers: {},
+                flagged: new Set(),
+                currentIndex: 0,
+                startTime: Date.now()
+            };
 
-            try {
-                const res = await fetch('/api/mock-test');
-                const data = await res.json();
-                
-                appState.currentExam = {
-                    questions: data.questions,
-                    total: data.questions.length,
-                    durationMinutes: data.duration_minutes || 90,
-                    secondsRemaining: (data.duration_minutes || 90) * 60,
-                    userAnswers: {},
-                    flagged: new Set(),
-                    currentIndex: 0,
-                    startTime: Date.now()
-                };
-
-                renderPaletteGrid();
-                renderCurrentExamQuestion();
-                startExamTimer();
-
-            } catch (err) {
-                alert("Error loading mock test questions. Please check connection.");
-                showTab('dashboard');
-            }
+            renderPaletteGrid();
+            renderCurrentExamQuestion();
+            startExamTimer();
         }
 
         function startExamTimer() {
@@ -1761,50 +1929,11 @@
             clearInterval(appState.currentExam.timerInterval);
             
             const exam = appState.currentExam;
-            const timeTaken = Math.round((Date.now() - exam.startTime) / 1000);
-            const questionIds = exam.questions.map(q => q.id);
-
-            const payload = {
-                test_type: "PPSC English Lecturer Full Mock Exam",
-                subject: "English Literature & GK",
-                total_questions: exam.total,
-                time_taken_seconds: timeTaken,
-                answers: exam.userAnswers,
-                question_ids: questionIds
-            };
-
-            try {
-                const res = await fetch('/api/submit-test', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const result = await res.json();
-                
-                StorageManager.saveTestResult({
-                    test_type: payload.test_type,
-                    subject: payload.subject,
-                    total_questions: result.total_questions,
-                    net_score: result.net_score,
-                    raw_score: result.raw_score,
-                    negative_deduction: result.negative_deduction,
-                    correct_count: result.correct_count,
-                    incorrect_count: result.incorrect_count,
-                    unattempted_count: result.unattempted_count,
-                    percentage: result.percentage,
-                    passed: result.passed,
-                    time_taken_seconds: result.time_taken_seconds,
-                    details: {
-                        subject_stats: result.subject_stats,
-                        detailed_review: result.detailed_review
-                    }
-                });
-
-                displayTestResults(result);
-                updateDashboardStats();
-            } catch (err) {
-                alert("Error evaluating test.");
-            }
+            const result = DataStore.evaluateTest(exam);
+            
+            StorageManager.saveTestResult(result);
+            displayTestResults(result);
+            updateDashboardStats();
         }
 
         function displayTestResults(result) {
@@ -1972,70 +2101,65 @@
             activeContainer.style.display = 'block';
             list.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary"></div></div>';
 
-            try {
-                const res = await fetch(`/api/practice?subject=${encodeURIComponent(subject)}&limit=${limit}`);
-                const data = await res.json();
-                
-                appState.practiceSession = {
-                    subject: subject,
-                    isLearnMode: isLearnMode,
-                    questions: data.questions,
-                    userAnswers: {},
-                    submitted: false
-                };
+            await DataStore.init();
+            const questions = DataStore.getPractice(subject, limit);
+            
+            appState.practiceSession = {
+                subject: subject,
+                isLearnMode: isLearnMode,
+                questions: questions,
+                userAnswers: {},
+                submitted: false
+            };
 
-                document.getElementById('practice-session-title').innerText = `${subject === 'all' ? 'All Subjects' : subject} (${data.questions.length} MCQs • ${isLearnMode ? 'Learn Mode' : 'Quiz Mode'})`;
+            document.getElementById('practice-session-title').innerText = `${subject === 'all' ? 'All Subjects' : subject} (${questions.length} MCQs • ${isLearnMode ? 'Learn Mode' : 'Quiz Mode'})`;
 
-                list.innerHTML = '';
-                data.questions.forEach((q, idx) => {
-                    list.innerHTML += `
-                        <div class="card p-3 mb-3 shadow-sm" id="practice-q-card-${q.id}">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="badge bg-primary-subtle text-primary fw-bold">Q ${idx + 1}</span>
-                                    <span class="badge bg-secondary-subtle text-secondary-emphasis">${q.subject}</span>
-                                </div>
-                                <span class="small text-muted d-none d-md-inline-block"><i class="fa-solid fa-user-pen me-1 text-primary"></i> ${q.submitted_by || 'PakMCQs Contributor'}</span>
+            list.innerHTML = '';
+            questions.forEach((q, idx) => {
+                list.innerHTML += `
+                    <div class="card p-3 mb-3 shadow-sm" id="practice-q-card-${q.id}">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-primary-subtle text-primary fw-bold">Q ${idx + 1}</span>
+                                <span class="badge bg-secondary-subtle text-secondary-emphasis">${q.subject}</span>
                             </div>
-
-                            <h5 class="fw-bold mb-2 lh-base">${q.question}</h5>
-
-                            <div class="options-group mt-3" id="practice-opts-${q.id}">
-                                ${q.options.map(opt => `
-                                    <div class="option-card" id="practice-opt-${q.id}-${opt.letter}" onclick="handlePracticeOptionClick(${q.id}, '${escapeQuote(opt.text)}', '${escapeQuote(q.correct_answer)}')">
-                                        <div class="option-letter">${opt.letter}</div>
-                                        <div class="flex-grow-1">${opt.text}</div>
-                                    </div>
-                                `).join('')}
-                            </div>
-
-                            <div class="practice-exp mt-3 p-3 bg-body-tertiary rounded border" id="practice-exp-${q.id}" style="display: none;">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <div class="fw-bold text-success"><i class="fa-solid fa-circle-check me-1"></i> Correct Answer: [${q.correct_letter}] ${q.correct_answer}</div>
-                                    <small class="text-muted">Source: PakMCQs</small>
-                                </div>
-                                ${q.explanation ? `<div class="small text-muted mt-1">${q.explanation}</div>` : ''}
-                            </div>
+                            <span class="small text-muted d-none d-md-inline-block"><i class="fa-solid fa-user-pen me-1 text-primary"></i> ${q.submitted_by || 'PakMCQs Contributor'}</span>
                         </div>
-                    `;
-                });
 
-                if (!isLearnMode) {
-                    list.innerHTML += `
-                        <div class="card p-4 text-center mt-4 bg-body-tertiary border shadow-sm" id="quiz-submit-card">
-                            <h5 class="fw-bold mb-1"><i class="fa-solid fa-flag-checkered text-primary me-2"></i>Finished your practice questions?</h5>
-                            <p class="text-muted small mb-3">Submit your quiz to calculate your score, view detailed correct answers, and read explanations.</p>
-                            <div>
-                                <button class="btn btn-primary btn-lg fw-bold px-5" onclick="submitPracticeQuiz()">
-                                    <i class="fa-solid fa-check-double me-2"></i> Submit Quiz & View Results
-                                </button>
-                            </div>
+                        <h5 class="fw-bold mb-2 lh-base">${q.question}</h5>
+
+                        <div class="options-group mt-3" id="practice-opts-${q.id}">
+                            ${q.options.map(opt => `
+                                <div class="option-card" id="practice-opt-${q.id}-${opt.letter}" onclick="handlePracticeOptionClick(${q.id}, '${escapeQuote(opt.text)}', '${escapeQuote(q.correct_answer)}')">
+                                    <div class="option-letter">${opt.letter}</div>
+                                    <div class="flex-grow-1">${opt.text}</div>
+                                </div>
+                            `).join('')}
                         </div>
-                    `;
-                }
 
-            } catch (err) {
-                alert("Failed to load practice questions.");
+                        <div class="practice-exp mt-3 p-3 bg-body-tertiary rounded border" id="practice-exp-${q.id}" style="display: none;">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div class="fw-bold text-success"><i class="fa-solid fa-circle-check me-1"></i> Correct Answer: [${q.correct_letter}] ${q.correct_answer}</div>
+                                <small class="text-muted">Source: PakMCQs</small>
+                            </div>
+                            ${q.explanation ? `<div class="small text-muted mt-1">${q.explanation}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (!isLearnMode) {
+                list.innerHTML += `
+                    <div class="card p-4 text-center mt-4 bg-body-tertiary border shadow-sm" id="quiz-submit-card">
+                        <h5 class="fw-bold mb-1"><i class="fa-solid fa-flag-checkered text-primary me-2"></i>Finished your practice questions?</h5>
+                        <p class="text-muted small mb-3">Submit your quiz to calculate your score, view detailed correct answers, and read explanations.</p>
+                        <div>
+                            <button class="btn btn-primary btn-lg fw-bold px-5" onclick="submitPracticeQuiz()">
+                                <i class="fa-solid fa-check-double me-2"></i> Submit Quiz & View Results
+                            </button>
+                        </div>
+                    </div>
+                `;
             }
         }
 
@@ -2179,66 +2303,60 @@
 
             if (container) container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
 
-            try {
-                const url = `/api/search?q=${encodeURIComponent(query)}&subject=${encodeURIComponent(subject)}&page=${page}&per_page=15`;
-                const res = await fetch(url);
-                const data = await res.json();
+            await DataStore.init();
+            const data = DataStore.search(query, subject, page, 15);
 
-                if (summary) summary.innerText = `Found ${data.total.toLocaleString()} questions (Page ${data.page} of ${Math.ceil(data.total / data.per_page) || 1})`;
-                if (container) container.innerHTML = '';
+            if (summary) summary.innerText = `Found ${data.total.toLocaleString()} questions (Page ${data.page} of ${data.total_pages})`;
+            if (container) container.innerHTML = '';
 
-                if (data.questions.length === 0) {
-                    if (container) container.innerHTML = '<div class="card p-5 text-center text-muted">No English Literature MCQs matched your search filters.</div>';
-                    const pag = document.getElementById('search-pagination');
-                    if (pag) pag.innerHTML = '';
-                    return;
-                }
-
-                appState.searchQuestions = data.questions;
-
-                data.questions.forEach(q => {
-                    const isBookmarked = StorageManager.isBookmarked(q.id);
-                    container.innerHTML += `
-                        <div class="card p-3 mb-3" id="search-card-${q.id}">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="badge bg-primary-subtle text-primary text-wrap text-start" style="max-width: 75%;">${q.subject}</span>
-                                <button class="btn btn-sm ${isBookmarked ? 'btn-warning' : 'btn-light border'} py-1 px-2" id="bm-btn-${q.id}" onclick="toggleSearchBookmark(${q.id})" title="${isBookmarked ? 'Remove Bookmark' : 'Save Question'}">
-                                    <i class="${isBookmarked ? 'fa-solid' : 'fa-regular text-muted'} fa-bookmark"></i>
-                                    <span class="small ms-1 ${isBookmarked ? 'fw-bold' : ''}">${isBookmarked ? 'Saved' : 'Save'}</span>
-                                </button>
-                            </div>
-
-                            <h6 class="fw-bold mb-2 lh-base">Q. ${q.question}</h6>
-
-                            <div class="row g-2 mb-2">
-                                ${q.options.map(opt => `
-                                    <div class="col-sm-6 col-12">
-                                        <div class="small p-2 border rounded ${opt.is_correct ? 'bg-success-subtle text-success-emphasis fw-bold' : ''}">
-                                            <strong>(${opt.letter})</strong> ${opt.text}
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top small">
-                                <span class="text-success fw-bold"><i class="fa-solid fa-check me-1"></i> Answer: [${q.correct_letter}] ${q.correct_answer}</span>
-                                ${q.explanation ? `<button class="btn btn-sm btn-link text-decoration-none p-0" onclick="toggleSearchExp(${q.id})">Toggle Explanation</button>` : ''}
-                            </div>
-
-                            ${q.explanation ? `
-                                <div class="small p-2 bg-body-tertiary rounded text-muted mt-2" id="search-exp-${q.id}" style="display: none;">
-                                    <strong>Explanation:</strong> ${q.explanation}
-                                </div>
-                            ` : ''}
-                        </div>
-                    `;
-                });
-
-                renderSearchPagination(data.total, data.page, data.per_page);
-
-            } catch (err) {
-                console.error("Search failed", err);
+            if (data.questions.length === 0) {
+                if (container) container.innerHTML = '<div class="card p-5 text-center text-muted">No English Literature MCQs matched your search filters.</div>';
+                const pag = document.getElementById('search-pagination');
+                if (pag) pag.innerHTML = '';
+                return;
             }
+
+            appState.searchQuestions = data.questions;
+
+            data.questions.forEach(q => {
+                const isBookmarked = StorageManager.isBookmarked(q.id);
+                container.innerHTML += `
+                    <div class="card p-3 mb-3" id="search-card-${q.id}">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-primary-subtle text-primary text-wrap text-start" style="max-width: 75%;">${q.subject}</span>
+                            <button class="btn btn-sm ${isBookmarked ? 'btn-warning' : 'btn-light border'} py-1 px-2" id="bm-btn-${q.id}" onclick="toggleSearchBookmark(${q.id})" title="${isBookmarked ? 'Remove Bookmark' : 'Save Question'}">
+                                <i class="${isBookmarked ? 'fa-solid' : 'fa-regular text-muted'} fa-bookmark"></i>
+                                <span class="small ms-1 ${isBookmarked ? 'fw-bold' : ''}">${isBookmarked ? 'Saved' : 'Save'}</span>
+                            </button>
+                        </div>
+
+                        <h6 class="fw-bold mb-2 lh-base">Q. ${q.question}</h6>
+
+                        <div class="row g-2 mb-2">
+                            ${q.options.map(opt => `
+                                <div class="col-sm-6 col-12">
+                                    <div class="small p-2 border rounded ${opt.is_correct ? 'bg-success-subtle text-success-emphasis fw-bold' : ''}">
+                                        <strong>(${opt.letter})</strong> ${opt.text}
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top small">
+                            <span class="text-success fw-bold"><i class="fa-solid fa-check me-1"></i> Answer: [${q.correct_letter}] ${q.correct_answer}</span>
+                            ${q.explanation ? `<button class="btn btn-sm btn-link text-decoration-none p-0" onclick="toggleSearchExp(${q.id})">Toggle Explanation</button>` : ''}
+                        </div>
+
+                        ${q.explanation ? `
+                            <div class="small p-2 bg-body-tertiary rounded text-muted mt-2" id="search-exp-${q.id}" style="display: none;">
+                                <strong>Explanation:</strong> ${q.explanation}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+
+            renderSearchPagination(data.total, data.page, data.per_page);
         }
 
         function toggleSearchBookmark(qId) {
