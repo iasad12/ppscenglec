@@ -226,14 +226,14 @@ def build_pdf(json_file=DATA_JSON, output_pdf=OUTPUT_PDF):
     story.append(Spacer(1, 3))
     story.append(Paragraph("<b>ENGLISH LECTURER & SUBJECT SPECIALIST (BS-17)</b>", ParagraphStyle('Sub1', parent=title_style, fontSize=15, leading=19, textColor=colors.HexColor("#4F46E5"))))
     story.append(Spacer(1, 3))
-    story.append(Paragraph("<b>MASTER SOLVED PAST PAPERS & CATEGORIZED QUESTION BANK</b>", ParagraphStyle('Sub2', parent=title_style, fontSize=11.5, leading=15, textColor=colors.HexColor("#0284C7"))))
+    story.append(Paragraph(f"<b>MASTER SOLVED PAST PAPERS &amp; CATEGORIZED QUESTION BANK ({len(mcqs):,} MCQs)</b>", ParagraphStyle('Sub2', parent=title_style, fontSize=11.5, leading=15, textColor=colors.HexColor("#0284C7"))))
     story.append(Spacer(1, 4))
-    story.append(Paragraph("Curated & Compiled by <b><a href='https://asadimran.pages.dev/' color='#4338CA'><u>Asad Imran</u> (asadimran.pages.dev)</a></b> | Zero-Spoiler Two-Column Format", subtitle_style))
+    story.append(Paragraph("Curated &amp; Compiled by <b><a href='https://asadimran.pages.dev/' color='#4338CA'><u>Asad Imran</u> (asadimran.pages.dev)</a></b> | Zero-Spoiler Two-Column Format", subtitle_style))
     story.append(Spacer(1, 8))
 
-    # Shoutout Banner for PakMCQs and Contributors
+    # Shoutout Banner for PakMCQs, Sanfoundry, and Contributors
     shoutout_data = [[
-        Paragraph("<b>Special Acknowledgement & Shoutout:</b> Core MCQs and community contributions graciously sourced from <b>PakMCQs (pakmcqs.com)</b>, along with verified solved past papers compiled by Kashif Ali (Success Times Academy) and PPSC/SPSC Examination Boards.", shoutout_style)
+        Paragraph("<b>Special Acknowledgement &amp; Shoutout:</b> Core MCQs and community contributions graciously sourced from <b>PakMCQs (pakmcqs.com)</b>, <b>Sanfoundry</b>, and <b>Dr. Jahanzeb Jahan (Lectureship MCQs)</b>, along with verified solved past papers compiled by Kashif Ali (Success Times Academy) and PPSC/SPSC Examination Boards.", shoutout_style)
     ]]
     shoutout_table = Table(shoutout_data, colWidths=[540])
     shoutout_table.setStyle(TableStyle([
@@ -274,7 +274,7 @@ def build_pdf(json_file=DATA_JSON, output_pdf=OUTPUT_PDF):
     story.append(Spacer(1, 10))
 
     # Summary Table of Subjects & Counts
-    story.append(Paragraph("<b>Table of Contents & Subject Distribution</b>", ParagraphStyle('H2', fontName='Helvetica-Bold', fontSize=10.5, textColor=colors.HexColor("#0F172A"))))
+    story.append(Paragraph("<b>Table of Contents &amp; Subject Distribution</b>", ParagraphStyle('H2', fontName='Helvetica-Bold', fontSize=10.5, textColor=colors.HexColor("#0F172A"))))
     story.append(Spacer(1, 4))
     
     summary_rows = [
@@ -306,12 +306,22 @@ def build_pdf(json_file=DATA_JSON, output_pdf=OUTPUT_PDF):
             Paragraph(f"<b>{len(s_mcqs)}</b>", ParagraphStyle('TD3', fontName='Helvetica-Bold', fontSize=7.5, alignment=1, textColor=colors.HexColor("#4F46E5"))),
             Paragraph(weight_map.get(subj, "10%"), ParagraphStyle('TD4', fontName='Helvetica', fontSize=7.5, alignment=1, textColor=colors.HexColor("#475569")))
         ])
+
+    # Total row
+    summary_rows.append([
+        Paragraph("Σ", ParagraphStyle('TDTot0', fontName='Helvetica-Bold', fontSize=8, alignment=1, textColor=colors.HexColor("#1E1B4B"))),
+        Paragraph("<b>TOTAL VERIFIED QUESTION BANK</b>", ParagraphStyle('TDTot1', fontName='Helvetica-Bold', fontSize=8, textColor=colors.HexColor("#1E1B4B"))),
+        Paragraph(f"<b>{len(mcqs):,}</b>", ParagraphStyle('TDTot2', fontName='Helvetica-Bold', fontSize=8, alignment=1, textColor=colors.HexColor("#4F46E5"))),
+        Paragraph("<b>100% Comprehensive</b>", ParagraphStyle('TDTot3', fontName='Helvetica-Bold', fontSize=7.5, alignment=1, textColor=colors.HexColor("#065F46")))
+    ])
         
     summary_table = Table(summary_rows, colWidths=[30, 280, 110, 120])
     summary_table.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#312E81")),
         ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E1")),
-        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F8FAFC")]),
+        ('ROWBACKGROUNDS', (0,1), (-1,-2), [colors.white, colors.HexColor("#F8FAFC")]),
+        ('BACKGROUND', (0,-1), (-1,-1), colors.HexColor("#EEF2FF")),
+        ('LINEABOVE', (0,-1), (-1,-1), 1.2, colors.HexColor("#4F46E5")),
         ('TOPPADDING', (0,0), (-1,-1), 3.5),
         ('BOTTOMPADDING', (0,0), (-1,-1), 3.5),
     ]))
