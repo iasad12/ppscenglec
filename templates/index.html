@@ -461,10 +461,33 @@
                 </ul>
 
                 <div class="d-flex align-items-center gap-2 mt-2 mt-lg-0">
-                    <a href="/download-pdf" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 fw-semibold py-1 px-3" title="Download Categorized PDF (4,362 Solved MCQs)">
-                        <i class="fa-solid fa-file-pdf text-danger"></i>
-                        <span>PDF</span>
-                    </a>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary btn-sm dropdown-toggle d-flex align-items-center gap-1 fw-semibold py-1 px-3" type="button" id="pdfDropdownMenu" data-bs-toggle="dropdown" aria-expanded="false" title="Download Master Revision Guides">
+                            <i class="fa-solid fa-file-arrow-down text-danger"></i>
+                            <span>Get PDF</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border" aria-labelledby="pdfDropdownMenu" style="min-width: 290px;">
+                            <li>
+                                <a class="dropdown-item py-2 d-flex align-items-start gap-2" href="/download-oneliner-pdf">
+                                    <div class="stat-icon-box mt-1 rounded d-flex align-items-center justify-content-center" style="width:28px;height:28px;font-size:0.85rem;color:#0d9488;background-color:#ccfbf1;"><i class="fa-solid fa-bolt"></i></div>
+                                    <div>
+                                        <div class="fw-bold text-dark">One-Liner Revision PDF <span class="badge bg-success ms-1" style="font-size:0.65rem;">NEW</span></div>
+                                        <small class="text-muted d-block" style="font-size:0.75rem;">4,894 Statements with Underlined Answers</small>
+                                    </div>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li>
+                                <a class="dropdown-item py-2 d-flex align-items-start gap-2" href="/download-pdf">
+                                    <div class="stat-icon-box mt-1 rounded d-flex align-items-center justify-content-center" style="width:28px;height:28px;font-size:0.85rem;color:#dc2626;background-color:#fee2e2;"><i class="fa-solid fa-file-pdf"></i></div>
+                                    <div>
+                                        <div class="fw-bold text-dark">Master MCQs PDF Guide</div>
+                                        <small class="text-muted d-block" style="font-size:0.75rem;">4,894 MCQs in Two-Column Format</small>
+                                    </div>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
 
                     <button class="btn btn-light btn-sm border py-1 px-2" data-bs-toggle="modal" data-bs-target="#settingsModal" title="Settings & Data Management">
                         <i class="fa-solid fa-gear text-secondary"></i>
@@ -499,7 +522,7 @@
                         </span>
                         <h2 class="fw-extrabold mb-2">Master English Literature & Linguistics</h2>
                         <p class="opacity-90 mb-3 fs-6">
-                            4,362 categorized MCQs & solved past papers (2011–2024). Authentic PPSC criteria: <strong>100 MCQs, 90 mins, -0.25 negative marking, 40% passing threshold</strong>.
+                            4,894 categorized MCQs & solved past papers (2011–2024). Authentic PPSC criteria: <strong>100 MCQs, 90 mins, -0.25 negative marking, 40% passing threshold</strong>.
                         </p>
                         <div class="d-flex flex-wrap gap-2">
                             <button class="btn btn-light btn-md fw-bold text-primary shadow-sm px-4" onclick="startMockTest()">
@@ -527,7 +550,7 @@
                                 <i class="fa-solid fa-database"></i>
                             </div>
                         </div>
-                        <h4 class="fw-bold mb-0" id="stat-total-q">4,362</h4>
+                        <h4 class="fw-bold mb-0" id="stat-total-q">4,894</h4>
                         <small class="text-muted">Literature & GK MCQs</small>
                     </div>
                 </div>
@@ -1071,9 +1094,13 @@
                     <div class="stat-icon-box bg-success-subtle text-success" style="width:36px;height:36px;font-size:1rem;"><i class="fa-solid fa-mobile-screen-button"></i></div>
                     <div><div class="fw-bold">Install App</div><small class="text-muted">Add to home screen for native offline experience</small></div>
                 </a>
+                <a href="/download-oneliner-pdf" class="list-group-item list-group-item-action d-flex align-items-center gap-3 p-3 rounded border">
+                    <div class="stat-icon-box bg-teal-subtle text-teal" style="width:36px;height:36px;font-size:1rem;color:#0d9488;background-color:#ccfbf1;"><i class="fa-solid fa-bolt"></i></div>
+                    <div><div class="fw-bold">Download One-Liner PDF Guide <span class="badge bg-success" style="font-size:0.65rem;">NEW</span></div><small class="text-muted">4,894 Statements with Underlined Answers</small></div>
+                </a>
                 <a href="/download-pdf" class="list-group-item list-group-item-action d-flex align-items-center gap-3 p-3 rounded border">
                     <div class="stat-icon-box bg-danger-subtle text-danger" style="width:36px;height:36px;font-size:1rem;"><i class="fa-solid fa-file-pdf"></i></div>
-                    <div><div class="fw-bold">Download Master PDF Guide</div><small class="text-muted">4,362 MCQs with right-column answers</small></div>
+                    <div><div class="fw-bold">Download Master PDF Guide</div><small class="text-muted">4,894 MCQs with right-column answers</small></div>
                 </a>
                 <a href="#" class="list-group-item list-group-item-action d-flex align-items-center gap-3 p-3 rounded border" data-bs-toggle="modal" data-bs-target="#settingsModal" onclick="bootstrap.Offcanvas.getInstance(document.getElementById('mobileMoreMenu'))?.hide();">
                     <div class="stat-icon-box bg-secondary-subtle text-secondary" style="width:36px;height:36px;font-size:1rem;"><i class="fa-solid fa-gear"></i></div>
@@ -1332,7 +1359,7 @@
 
             getStats() {
                 return {
-                    total_questions: this.questions.length || 4362,
+                    total_questions: this.questions.length || 4894,
                     subjects: this.subjects
                 };
             },
@@ -1549,7 +1576,7 @@
         async function loadServerQuestionStats() {
             await DataStore.init();
             const stats = DataStore.getStats();
-            document.getElementById('stat-total-q').innerText = (stats.total_questions || 4362).toLocaleString();
+            document.getElementById('stat-total-q').innerText = (stats.total_questions || 4894).toLocaleString();
         }
 
         function updateDashboardStats() {

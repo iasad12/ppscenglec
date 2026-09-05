@@ -8,6 +8,7 @@ from flask import Flask, render_template, request, jsonify, send_file, send_from
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "english_lecturer.db")
 PDF_PATH = os.path.join(BASE_DIR, "English_Lecturer_Past_Papers_Categorized.pdf")
+ONELINER_PDF_PATH = os.path.join(BASE_DIR, "English_Lecturer_One_Liners_Revision_Guide.pdf")
 
 app = Flask(__name__, template_folder=os.path.join(BASE_DIR, "templates"), static_folder=os.path.join(BASE_DIR, "static"))
 
@@ -36,6 +37,12 @@ def download_pdf():
     if os.path.exists(PDF_PATH):
         return send_file(PDF_PATH, as_attachment=True, download_name="English_Lecturer_Past_Papers_Categorized.pdf")
     return jsonify({"error": "PDF not generated yet"}), 404
+
+@app.route("/download-oneliner-pdf")
+def download_oneliner_pdf():
+    if os.path.exists(ONELINER_PDF_PATH):
+        return send_file(ONELINER_PDF_PATH, as_attachment=True, download_name="English_Lecturer_One_Liners_Revision_Guide.pdf")
+    return jsonify({"error": "One-Liner PDF not generated yet"}), 404
 
 @app.route("/api/stats")
 def api_stats():
